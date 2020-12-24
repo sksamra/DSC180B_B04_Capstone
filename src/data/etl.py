@@ -246,11 +246,21 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
     copyfile(input_database, sra_runs["output_database"])
 
     # Add Run column for download
-    if "curl" in aligncount["tool"]:
+    if ("curl" in aligncount["tool"]) and (sra_runs["input_database2"] != ""):
         df = pd.read_csv(sra_runs["output_database"])
-        biosample_id = df["BIOSAMPLE NAME"].str[0:4]
+        biosample_id1 = df["BIOSAMPLE NAME"].str[0:2]
+        biosample_id2 = df["BIOSAMPLE NAME"].str[2:4]
         biosample_fluid = df["BIOSAMPLE NAME"].str[-3:]
-        df["Run"] = biosample_fluid + biosample_id
+        df["Sample Name"] = biosample_id1 + "_" + biosample_id2 + "_" + biosample_fluid
+
+        # Open SRA database
+        input_database2 = sra_runs["input_database2"]
+        if not os.path.exists(input_database2):
+            input_database2 = "../" +input_database2
+        df_sra = pd.read_csv(input_database2)
+        df_sra = df_sra[["Run", "sex", "Sample Name"]]
+        df = pd.merge(df, df_sra, on="Sample Name")
+        
         df.to_csv(sra_runs["output_database"])
 
 

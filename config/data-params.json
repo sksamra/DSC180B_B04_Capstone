@@ -4,6 +4,7 @@
     "out_data_directory": "./data/out",
     "sra_runs" : {
         "input_database" : "/datasets/SRP046292/exRNA_Atlas_CORE_Results.csv",
+        "input_database2" : "/datasets/SRP046292/SraRunTable.csv",
         "output_database" : "data/raw/exRNA_Atlas_CORE_Results.csv",
         "filter_enable" : 0,
         "filter_start_row" : 0,

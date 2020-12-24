@@ -12,8 +12,8 @@
         "filter_names" : "/datasets/srp073813/reference/Gene_Naming.csv",
         "run_database" : "data/raw/exRNA_Atlas_CORE_Results.csv",
         "imputes" : [],
-        "features" : ["Run", "CONDITION", "TRANSCRIPTOME GENOME RATIO", "BIOFLUID", "TRANSCRIPTOME READS", "REFERENCE GENOME READS"],
-        "rename" : {"CONDITION" : "Disorder", "BIOFLUID" : "Biofluid", "TRANSCRIPTOME GENOME RATIO" : "genome_ratio", "TRANSCRIPTOME READS" : "treads", "REFERENCE GENOME READS" : "rreads" },
+        "features" : ["Run", "CONDITION", "TRANSCRIPTOME GENOME RATIO", "BIOFLUID", "TRANSCRIPTOME READS", "REFERENCE GENOME READS", "sex"],
+        "rename" : {"CONDITION" : "Disorder", "BIOFLUID" : "Biofluid", "TRANSCRIPTOME GENOME RATIO" : "genome_ratio", "TRANSCRIPTOME READS" : "reads"},
         "replace" : {"from":["Parkinson's Disease", "Alzheimer's Disease", "Cerebrospinal fluid", "Healthy Control"], "to":["Parkinson", "Alzheimer", "Cerebrospinal", "Control"]},
         "output_matrix" : "data/out/gene_matrix.tsv",
         "output_features" : "data/out/features.tsv"

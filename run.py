@@ -58,6 +58,8 @@ def main(targets):
         # USE THE TEST DATA!
         sra_runs = data_cfg["sra_runs"]
         sra_runs["input_database"] = "test/testdata/SraRunTable.csv"
+        sra_runs["input_database2"] = ""
+
         # get the directories
         raw_dir = data_cfg["raw_data_directory"]
         tmp_dir = data_cfg["tmp_data_directory"]
@@ -100,6 +102,7 @@ def main(targets):
         # Reset the input database to test 
         if 'test' in targets:
             sra_runs["input_database"] = "test/testdata/SraRunTable.csv"
+            sra_runs["input_database2"] = ""
            
         data = etl.process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, cleanup, data_cfg["verbose"])
         success = True
