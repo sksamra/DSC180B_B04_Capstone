@@ -80,7 +80,7 @@ print("Loading Complete")
 print(paste("gene count dimensions", dim(gene_count.table)))
 print(paste("experiment features dimensions", dim(experiment_features)))
 
-deseq_data <- DESeqDataSetFromMatrix(countData = round(gene_count.table+1), colData = experiment_features, design = ~ Age+PMI+pH+Disorder)
+deseq_data <- DESeqDataSetFromMatrix(countData = round(gene_count.table+1), colData = experiment_features, design = ~ genome_ratio+rreads+treads+Disorder)
 print("Matrix Set Complete")
 
 dds_norm <-  estimateSizeFactors(deseq_data)
@@ -89,9 +89,9 @@ print("estimateSizeFactors complete")
 # Likelihood Ratio Test (LRT)
 if (parallel == "parallel=1") {
 	# Parallel version
-	dds_lrt <- DESeq(deseq_data, test="LRT", parallel=TRUE, BPPARAM=MulticoreParam(workers=4), reduced =~ Age+PMI+pH)
+	dds_lrt <- DESeq(deseq_data, test="LRT", parallel=TRUE, BPPARAM=MulticoreParam(workers=4), reduced =~ Agenome_ratio+rreads+treads)
 } else {
-	dds_lrt <- DESeq(deseq_data, test="LRT", reduced =~ Age+PMI+pH) 
+	dds_lrt <- DESeq(deseq_data, test="LRT", reduced =~ genome_ratio+rreads+treads) 
 }
 
 print("DESeq LRT setup complete")  

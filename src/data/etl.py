@@ -245,6 +245,14 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
         input_database = "../" +input_database 
     copyfile(input_database, sra_runs["output_database"])
 
+    # Add Run column for download
+    if "curl" in aligncount["tool"]:
+        df = pd.read_csv(sra_runs["output_database"])
+        biosample_id = df["BIOSAMPLE NAME"].str[0:4]
+        biosample_fluid = df["BIOSAMPLE NAME"].str[-3:]
+        df["Run"] = biosample_fluid + biosample_id
+        df.to_csv(sra_runs["output_database"])
+
 
     # Step 3: Iterate through the samples and process or copy the file
     number = 1
@@ -290,9 +298,7 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
 
             # Download
             url = row["DOWNLOAD URL"]
-            biosample_id = row["BIOSAMPLE NAME"][0:4]
-            biosample_fluid = row["BIOSAMPLE NAME"][-3:]
-            biosample_dir = "./data/tmp/" + biosample_id + biosample_fluid
+            biosample_dir = "./data/tmp/" + row["Run"]
             filename = biosample_dir + ".tgz"
 
             command = aligncount["tool"]
@@ -319,7 +325,7 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
             subfolder = [ f.path for f in os.scandir(biosample_dir) if f.is_dir() ][0]
             src_gene_count = subfolder + "/" + aligncount["read_counts_file"]
             # Copy Gene Count file
-            dst_gene_count = tmp_dir + "/" + biosample_id + biosample_fluid + "_" + "ReadsPerGene.out.tab"
+            dst_gene_count = biosample_dir + "_" + "ReadsPerGene.out.tab"
             copyfile(src_gene_count, dst_gene_count)
             if verbose==1:
                 logging.info("cp " + src_gene_count + " " + dst_gene_count)
@@ -415,7 +421,7 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
         df_run_samples["PRUA"] = -1.0
 
     skip_rows = count["skiprows"]
-    if count["format"] == "kallisto":
+    if count["format"] != "STAR":
         skip_rows = 1
     
     for filename in os.listdir(input_dir):
@@ -432,6 +438,8 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
         if verbose:
             logging.info("Input: " + filename)
         df = pd.read_csv(input_dir + "/" + filename, sep="\t", skiprows=skip_rows, header=None)
+        print(input_dir + "/" + filename)
+        
         df = df.set_index(0)
         df = df.iloc[:,count_column-1].to_frame()
         df = df.transpose()
@@ -472,22 +480,27 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
     merged_count_df = merged_count_df[ valid_sra_runs ]
 
     # Keep only genes passing filter
-    if verbose == 1:
-        logging.info("Filtering Genes: Keep " + count["filter_keep_genes"])
-    merged_count_df = merged_count_df[merged_count_df.index.astype(str).str.startswith(count["filter_keep_genes"])]
-    
-    # Drop genes (chromosomes etc)
-    if "filter_names" in count:
-        filter_genes = get_valid_genes(count["filter_names"], count["filter_remove_genes"])
-        if len(filter_genes) > 0:
-            # Find the difference - these will be what we remove
-            genes_to_remove = set(merged_count_df.index) - set(filter_genes)
-            if verbose==1:
-                logging.info("Filtering Genes: Remove " + str(count["filter_remove_genes"]) + " Number=" + str(len(genes_to_remove)))
-                logging.info("Before Filter #genes=" + str(merged_count_df.shape[0]))
-            merged_count_df = merged_count_df.drop(list(genes_to_remove), axis=0, errors='ignore')
-            if verbose==1:
-                logging.info("After Filter #genes=" + str(merged_count_df.shape[0]))
+    if count["enable_filter"]==1:
+        if verbose == 1:
+            logging.info("Filtering Genes: Keep " + count["filter_keep_genes"])
+        merged_count_df = merged_count_df[merged_count_df.index.astype(str).str.startswith(count["filter_keep_genes"])]
+        # Drop genes (chromosomes etc)
+        if "filter_names" in count:
+            filter_genes = get_valid_genes(count["filter_names"], count["filter_remove_genes"])
+            if len(filter_genes) > 0:
+                # Find the difference - these will be what we remove
+                genes_to_remove = set(merged_count_df.index) - set(filter_genes)
+                if verbose==1:
+                    logging.info("Filtering Genes: Remove " + str(count["filter_remove_genes"]) + " Number=" + str(len(genes_to_remove)))
+                    logging.info("Before Filter #genes=" + str(merged_count_df.shape[0]))
+                merged_count_df = merged_count_df.drop(list(genes_to_remove), axis=0, errors='ignore')
+                if verbose==1:
+                    logging.info("After Filter #genes=" + str(merged_count_df.shape[0]))
+
+    # rename and drop nan's
+    df_run_samples = df_run_samples.replace(count["replace"]["from"], count["replace"]["to"])
+    merged_count_df.index.name = ""
+    merged_count_df = merged_count_df.dropna()
 
     # save files
     merged_count_df.to_csv(count["output_matrix"], sep='\t')

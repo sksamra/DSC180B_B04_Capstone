@@ -32,10 +32,10 @@ def lm_corr_plot(x, y, df, title, out_image):
 	return
 
 
-def pvalue_histograms(ylim, brain_regions, disorders, title, out_image):
-	fig, axes = plt.subplots(nrows=3,ncols=3, figsize=(10, 8))
+def pvalue_histograms(ylim, biofluid_regions, disorders, title, out_image):
+	fig, axes = plt.subplots(nrows=2,ncols=2, figsize=(10, 8))
 
-	for ax, col in zip(axes[0], brain_regions):
+	for ax, col in zip(axes[0], biofluid_regions):
 	    ax.set_title(col)
 
 	fig.suptitle(title)
@@ -45,13 +45,15 @@ def pvalue_histograms(ylim, brain_regions, disorders, title, out_image):
 
 	colors = ['red', 'blue', 'green']
 	col = 0
-	for brain_region in brain_regions:
+	for biofluid_region in biofluid_regions:
 		row = 0
 		for disorder in disorders:
-			df = pd.read_csv("data/out/"+brain_region+"/"+disorder+"/lrt.tsv", sep='\t', index_col=0)
-			# remove high pvalues?
-			#df = df[df["pvalue"]<0.8]
-			df["pvalue"].plot.hist(ax = axes[row,col], color=colors[col], bins=20, ylim=(0,ylim)) 
+			filename = "data/out/"+biofluid_region+"/"+disorder+"/lrt.tsv"
+			if os.path.exists(filename):
+				df = pd.read_csv(filename, sep='\t', index_col=0)
+				# remove high pvalues?
+				#df = df[df["pvalue"]<0.8]
+				df["pvalue"].plot.hist(ax = axes[row,col], color=colors[col], bins=20, ylim=(0,ylim)) 
 			row+=1
 		col+=1
 		
@@ -66,26 +68,26 @@ def process_corrmatrix(out_dir, corrmatrix):
 	# Pairwise Spearman correlations of log2 fold gene expression changes between each disorder and CTL in each brain region. 
 	# Cite: https://stackoverflow.com/questions/59381273/heatmap-with-circles-indicating-size-of-population
 
-	N = 9
-	M = 9
-	ylabels = ["MDD", "BPD", "SZ"]*3
-	xlabels = ["SZ", "BPD", "MDD"]*3
-	brain_regions = ["AnCg", "DLPFC", "nAcc"]
+	N = 4
+	M = 4
+	ylabels = ["Parkinson", "Alzheimer"]*2
+	xlabels = ["Alzheimer", "Parkinson"]*2
+	biofluid_regions = ["Cerebrospinal", "Serum"]
 	# names for positions along x-axis 0..9
-	disorders_x = ["Schizophrenia","Bipolar_Disorder","Major_Depression"]*3
-	brain_regions_x = ["AnCg","AnCg","AnCg", "DLPFC", "DLPFC", "DLPFC", "nAcc", "nAcc", "nAcc"]
+	disorders_x = ["Alzheimer","Parkinson"]*2
+	biofluid_regions_x = ["Cerebrospinal","Cerebrospinal", "Serum", "Serum"]
 
 	# names for positions along x-axis 0..9
-	disorders_y = ["Major_Depression", "Bipolar_Disorder","Schizophrenia"]*3
-	brain_regions_y = ["nAcc", "nAcc", "nAcc", "DLPFC", "DLPFC", "DLPFC", "AnCg","AnCg","AnCg"]
+	disorders_y = ["Parkinson", "Alzheimer"]*2
+	biofluid_regions_y = ["Serum", "Serum", "Cerebrospinal","Cerebrospinal"]
 	
 	# size of circles
 	s = np.zeros((N,M))
 
 	for y in range(N):
 	    for x in range(M):
-	    	lrt1 = "data/out/"+brain_regions_x[x]+"/"+disorders_x[x]+"/lrt.tsv"
-	    	lrt2 = "data/out/"+brain_regions_y[y]+"/"+disorders_y[y]+"/lrt.tsv"
+	    	lrt1 = "data/out/"+biofluid_regions_x[x]+"/"+disorders_x[x]+"/lrt.tsv"
+	    	lrt2 = "data/out/"+biofluid_regions_y[y]+"/"+disorders_y[y]+"/lrt.tsv"
 	    	# Make sure ltr1 exists otherwise zero correlation
 	    	if not os.path.exists(lrt1):
 	    		s[y][x] = 0.5
@@ -117,12 +119,10 @@ def process_corrmatrix(out_dir, corrmatrix):
 	ax.set_xticks(np.arange(M+1)-0.5, minor=True)
 	ax.set_yticks(np.arange(N+1)-0.5, minor=True)
 	ax.grid(which='minor')
-	ax.text(1,-1.2, "AnCg", size=20, color='red')
-	ax.text(4,-1.2, "DLPFC", size=20, color='blue')
-	ax.text(7,-1.2, "nAcc", size=20, color='green')
-	ax.text(-1.5,7, "AnCg", size=20, rotation=90, color='red')
-	ax.text(-1.5,4, "DLPFC", size=20, rotation=90, color='blue')
-	ax.text(-1.5,1, "nAcc", size=20, rotation=90, color='green')
+	ax.text(0,-0.9, "Cerebrospinal", size=20, color='red')
+	ax.text(2,-0.9, "Serum", size=20, color='green')
+	ax.text(3.6,2, "Cerebrospinal", size=20, rotation=90, color='red')
+	ax.text(3.6,0, "Serum", size=20, rotation=90, color='green')
 
 	#fig.colorbar(col)
 	plt.suptitle(corrmatrix["title"])
@@ -130,47 +130,44 @@ def process_corrmatrix(out_dir, corrmatrix):
 	return
 
 
-def visualize_grid_images(brain_regions, disorders, image_filename, title, out_image):
+def visualize_grid_images(biofluid_regions, disorders, image_filename, title, out_image):
 	# Cite: https://stackoverflow.com/questions/25862026/turn-off-axes-in-subplots
-	fig, axarr = plt.subplots(3, 3, figsize=(15,15))
+	fig, axarr = plt.subplots(2, 2, figsize=(15,15))
 	fig.suptitle(title, size=25)
 	#plt.tight_layout()
 	fig.subplots_adjust(top=0.88)
 	row = 0
-	for brain_region in brain_regions:
+	for biofluid_region in biofluid_regions:
 	    col = 0
 	    for disorder in disorders:
-	        im = mpimg.imread("data/out/"+brain_region+"/"+disorder+"/" + image_filename)
-	        axarr[row,col].imshow(im, interpolation='bilinear')
-	        if row == 0 and col == 0:
-	            axarr[row,col].set_title("AnCg", size=20, color='red')
-	        if row == 0 and col == 1:
-	            axarr[row,col].set_title("DLPFC", size=20, color='blue')
-	        if row == 0 and col == 2:
-	            axarr[row,col].set_title("nAcc", size=20, color='green')
-	        if row == 0 and col == 0:
-	            axarr[row,col].set_ylabel("Schizophrenia", size=20, color='purple')
-	        if row == 1 and col == 0:
-	            axarr[row,col].set_ylabel("Bipolar_Disorder", size=20, color='purple')
-	        if row == 2 and col == 0:
-	            axarr[row,col].set_ylabel("Major_Depression", size=20, color='purple')
-	        
-	        col += 1
+	    	filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
+	    	if os.path.exists(filename):
+	    		im = mpimg.imread(filename)
+	    		axarr[row,col].imshow(im, interpolation='bilinear')
+	    	if row == 0 and col == 0:
+	    		axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
+	    	if row == 0 and col == 1:
+	    		axarr[row,col].set_title("Serum", size=20, color='blue')
+	    	if row == 0 and col == 0:
+	    		axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
+	    	if row == 1 and col == 0:
+	    		axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
+	    	col += 1
 	    row += 1
 
 	plt.savefig(out_image)
 	return
 
 def process_ma_plot(out_dir, ma_plot):
-	visualize_grid_images(ma_plot["brain_regions"], ma_plot["disorders"],  ma_plot["src_image"], ma_plot["title"], out_dir + "/ma_plot.png")
+	visualize_grid_images(ma_plot["biofluid_regions"], ma_plot["disorders"],  ma_plot["src_image"], ma_plot["title"], out_dir + "/ma_plot.png")
 	return
 
 def process_heat_map(out_dir, heat_map):
-	visualize_grid_images(heat_map["brain_regions"], heat_map["disorders"],  heat_map["src_image"], heat_map["title"], out_dir + "/heat_map.png")
+	visualize_grid_images(heat_map["biofluid_regions"], heat_map["disorders"],  heat_map["src_image"], heat_map["title"], out_dir + "/heat_map.png")
 	return
 
 def process_histogram(out_dir, histogram):
-	pvalue_histograms(histogram["ylim"], histogram["brain_regions"], histogram["disorders"], histogram["title"], out_dir + "/histogram.png")
+	pvalue_histograms(histogram["ylim"], histogram["biofluid_regions"], histogram["disorders"], histogram["title"], out_dir + "/histogram.png")
 	return
 
 def process_normalized_count_plots(out_dir, sra_lm):
@@ -189,24 +186,28 @@ def process_normalized_count_plots(out_dir, sra_lm):
 
 
 def process_venn(out_dir, venn):
-	from matplotlib_venn import venn3, venn3_unweighted
+	from matplotlib_venn import venn3, venn3_unweighted, venn2_unweighted
 
 	plt.clf()
 	pvalue_cutoff = venn["pvalue_cutoff"]
-	brain_regions = venn["brain_regions"]
+	biofluid_regions = venn["biofluid_regions"]
 	disorders = venn["disorders"]
 	genes = {}
-	for brain_region in brain_regions:
+	for biofluid_region in biofluid_regions:
 	    col = 0
 	    for disorder in disorders:
-	        df = pd.read_csv("data/out/"+brain_region+"/"+disorder+"/lrt.tsv", sep='\t', index_col=0)
-	        # Filter genes with pvalue less than cutoff
-	        df = df[df["pvalue"] < pvalue_cutoff]
-	        # Add to list
-	        if disorder in genes:
-	        	genes[disorder] = genes[disorder] + df.index.tolist()
-	        else:
-	        	genes[disorder] = df.index.tolist()
+	    	filename = "data/out/"+biofluid_region+"/"+disorder+"/lrt.tsv"
+	    	if os.path.exists(filename):
+		        df = pd.read_csv(filename, sep='\t', index_col=0)
+		        # Filter genes with pvalue less than cutoff
+		        df = df[df["pvalue"] < pvalue_cutoff]
+		        # Add to list
+		        if disorder in genes:
+		        	genes[disorder] = genes[disorder] + df.index.tolist()
+		        else:
+		        	genes[disorder] = df.index.tolist()
+	    	else:
+	    		genes[disorder] = []
 
 	# Find unique genes per disorder
 	for disorder in disorders:
@@ -214,9 +215,8 @@ def process_venn(out_dir, venn):
 
 	a = genes[disorders[0]]
 	b = genes[disorders[1]]
-	c = genes[disorders[2]]
 
-	fig = venn3_unweighted(subsets = (len(a - (b&c)), len(b - (a&c)), len((a&b) - c), len(c - (a&b)), len((a&c) - b), len((b&c) - a), len(a & b & c)), set_labels = tuple(disorders), alpha = 0.5)
+	fig = venn2_unweighted(subsets = (len(a - (a&b)), len((a&b)), len(b - (a&b))), set_labels = tuple(disorders), alpha = 0.5)
 	
 	plt.title(venn["title"])
 	plt.savefig(out_dir + "/venn.png" )

@@ -15,7 +15,7 @@ import logging
     
 
 
-def process_brain_disorder_comparisons(deseq2, output_prefix, cleanup, verbose):
+def process_biofluid_disorder_comparisons(deseq2, output_prefix, cleanup, verbose):
     '''
     Purpose : Analyze the disorder comparisons per brain region
     Arguments: 
@@ -26,34 +26,34 @@ def process_brain_disorder_comparisons(deseq2, output_prefix, cleanup, verbose):
     '''
     tmp_files = []
     # Iterate for each brain region
-    for brain_region in deseq2["brain_regions"]:
+    for biofluid_region in deseq2["biofluid_regions"]:
         # Create Directory
-        brain_dir = output_prefix.replace("%brain_region%", brain_region) + "/"
-        if not os.path.isdir(brain_dir):
-            os.makedirs(brain_dir)
+        biofluid_dir = output_prefix.replace("%biofluid_region%", biofluid_region) + "/"
+        if not os.path.isdir(biofluid_dir):
+            os.makedirs(biofluid_dir)
             if verbose:
-                logging.info("mkdir " + brain_dir)
+                logging.info("mkdir " + biofluid_dir)
         # load full matrix and features
-        brain_count_matrix_df = pd.read_csv(deseq2["input_counts"], sep="\t", index_col=0)
-        brain_feature_df = pd.read_csv(deseq2["input_features"], sep="\t")
+        biofluid_count_matrix_df = pd.read_csv(deseq2["input_counts"], sep="\t", index_col=0)
+        biofluid_feature_df = pd.read_csv(deseq2["input_features"], sep="\t")
         # filter brain region
-        brain_feature_df = brain_feature_df[brain_feature_df["brain_region"] == brain_region]
+        biofluid_feature_df = biofluid_feature_df[biofluid_feature_df["Biofluid"] == biofluid_region]
 
 
         for disorder in deseq2["disorders"]:
             disorder_a =  disorder
             disorder_b =  deseq2["control"]
-            disorder_dir = (brain_dir + disorder).replace(" ", "_") + "/"
+            disorder_dir = (biofluid_dir + disorder).replace(" ", "_") + "/"
             if not os.path.isdir(disorder_dir):
                 os.makedirs(disorder_dir)
                 if verbose:
                     logging.info("mkdir " + disorder_dir)
 
 
-            feature_df = brain_feature_df.copy()
-            count_matrix_df = brain_count_matrix_df.copy()
+            feature_df = biofluid_feature_df.copy()
+            count_matrix_df = biofluid_count_matrix_df.copy()
 
-            logging.info(brain_region + " x " + disorder_a + " vs Control")
+            logging.info(biofluid_region + " x " + disorder_a + " vs Control")
             # filter all a and b disorders
             feature_df = feature_df[ (feature_df["Disorder"] == disorder_a) | (feature_df["Disorder"] == disorder_b)] 
             feature_df["Disorder"] = feature_df["Disorder"].replace({disorder_a:0, disorder_b:1})
@@ -67,8 +67,8 @@ def process_brain_disorder_comparisons(deseq2, output_prefix, cleanup, verbose):
             input_feature_filename = disorder_dir + "features.tsv"
             tmp_files.append(input_feature_filename)
             
-            # remove brain_region from feature table
-            feature_df = feature_df.drop(["brain_region"], axis=1) # , "Run"
+            # remove biofluid_region from feature table
+            feature_df = feature_df.drop(["Biofluid"], axis=1) # , "Run"
             feature_df.to_csv(input_feature_filename, sep="\t", index=False)
 
             # DEQSe2 Process
@@ -122,7 +122,7 @@ def process_analysis(deseq2, output_prefix, cleanup, verbose):
         logging.info("# Analysis")
     
     # process each brain region x disorder - used in pvalue histogram plot
-    process_brain_disorder_comparisons(deseq2, output_prefix, cleanup, verbose)
+    process_biofluid_disorder_comparisons(deseq2, output_prefix, cleanup, verbose)
 
 
     if verbose:

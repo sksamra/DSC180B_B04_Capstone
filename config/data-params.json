@@ -7,7 +7,7 @@
         "output_database" : "data/raw/exRNA_Atlas_CORE_Results.csv",
         "filter_enable" : 1,
         "filter_start_row" : 0,
-        "filter_num_rows" : 2   
+        "filter_num_rows" : 19   
     },
     "process" : {
         "enable" : 0,

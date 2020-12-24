@@ -8,29 +8,29 @@
     },
     "sra_lm" : {
         "enable" : 1,
-        "sra" : ["SRR3438555", "SRR3438560"],
+        "sra" : ["CSF0852", "SER9926"],
         "normalized_counts" : "data/out/normalized_counts.tsv",
         "vst_counts" : "data/out/vst_transformed_counts.tsv",
         "title" : "%sra% Regression Log(Norm) v VST counts"
     },
     "ma_plot" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "src_image" : "MAplot.png",
-        "title" : "MA Plot: Brain Region vs Disorder"
+        "title" : "MA Plot: Biofluid Region vs Disorder"
     },
     "heat_map" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "src_image" : "heatmap.png",
-        "title" : "Heat Map: Brain Region vs Disorder"
+        "title" : "Heat Map: Biofluid Region vs Disorder"
     },
     "histogram" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "title" : "Histograms Differential Gene Expression vs Control",
         "ylim" : 2000
     },
@@ -40,9 +40,9 @@
     },
     "venn" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "pvalue_cutoff" : 0.05,
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
         "title" : "Venn Diagram Disorders"
     },
     "verbose": 1

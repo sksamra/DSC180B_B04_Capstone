@@ -53,9 +53,9 @@ gene_count.table <- read.table(file=gene_matrix_file, sep="\t", header=TRUE, row
 
 
 ## Use the DESeqDataSetFromMatrix to create a DESeqDataSet object
-#deseq_data <- DESeqDataSetFromMatrix(countData = gene_count.table, colData = experiment_features, design = ~ Age+PMI+pH+PRUA+Disorder)
+#deseq_data <- DESeqDataSetFromMatrix(countData = round(gene_count.table + 1), colData = experiment_features, design = ~ genome_ratio+rreads+treads+Disorder)
 # Add 1 to avoid error: normalize: every gene contains at least one zero, cannot compute log geometric 
-deseq_data <- DESeqDataSetFromMatrix(countData = round(gene_count.table + 1), colData = experiment_features, design = ~ Age+PMI+pH+Disorder)
+deseq_data <- DESeqDataSetFromMatrix(countData = gene_count.table, colData = experiment_features, design = ~ genome_ratio+rreads+treads+Disorder)
 
 dds_norm <-  estimateSizeFactors(deseq_data)
 
@@ -83,8 +83,8 @@ png(paste(output_prefix, "PCAplot_Disorder.png", sep = ""))
 plotPCA(vsd, intgroup = "Disorder", ntop = 500)
 dev.off()
 
-png(paste(output_prefix, "PCAplot_BrainRegion.png", sep = ""))
-plotPCA(vsd, intgroup = "brain_region", ntop = 500)
+png(paste(output_prefix, "PCAplot_Biofluid.png", sep = ""))
+plotPCA(vsd, intgroup = "Biofluid", ntop = 500)
 dev.off()
 
 
