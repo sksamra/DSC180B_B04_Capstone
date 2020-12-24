@@ -91,7 +91,7 @@ if (parallel == "parallel=1") {
 	# Parallel version
 	dds_lrt <- DESeq(deseq_data, test="LRT", parallel=TRUE, BPPARAM=MulticoreParam(workers=4), reduced =~ genome_ratio+reads+sex)
 } else {
-	dds_lrt <- DESeq(deseq_data, test="LRT", reduced =~ genome_ratio+rreads+treads) 
+	dds_lrt <- DESeq(deseq_data, test="LRT", reduced =~ genome_ratio+reads+sex) 
 }
 
 print("DESeq LRT setup complete")  
