@@ -89,7 +89,7 @@ print("estimateSizeFactors complete")
 # Likelihood Ratio Test (LRT)
 if (parallel == "parallel=1") {
 	# Parallel version
-	dds_lrt <- DESeq(deseq_data, test="LRT", parallel=TRUE, BPPARAM=MulticoreParam(workers=4), reduced =~ Agenome_ratio+reads+sex)
+	dds_lrt <- DESeq(deseq_data, test="LRT", parallel=TRUE, BPPARAM=MulticoreParam(workers=4), reduced =~ genome_ratio+reads+sex)
 } else {
 	dds_lrt <- DESeq(deseq_data, test="LRT", reduced =~ genome_ratio+rreads+treads) 
 }
