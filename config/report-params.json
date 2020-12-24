@@ -1,0 +1,5 @@
+{
+    "tool": "jupyter",
+    "args": "nbconvert --no-input --to html --output report.html notebooks/report.ipynb",
+    "verbose" : 1
+}

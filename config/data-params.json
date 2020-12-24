@@ -1,0 +1,38 @@
+{
+    "raw_data_directory": "./data/raw",
+    "tmp_data_directory": "./data/tmp",
+    "out_data_directory": "./data/out",
+    "sra_runs" : {
+        "input_database" : "/datasets/srp073813/reference/SraRunTable.csv",
+        "output_database" : "data/raw/SraRunTable.csv",
+        "filter_enable" : 0,
+        "filter_start_row" : 120,
+        "filter_num_rows" : 10   
+    },
+    "process" : {
+        "enable" : 0,
+        "tool" : "/opt/conda/bin/cutadapt",
+        "r1_adapters" : ["AAAAA", "GGGG"],
+        "r2_adapters" : ["CCCCC", "TTTT"],
+    	"arguments" : "--pair-adapters --cores=4",
+        "fastq1_path" : "/datasets/srp073813/%run%_1.fastq.gz", 
+        "fastq2_path" : "/datasets/srp073813/%run%_2.fastq.gz"
+    },
+    "aligncount" : "kallisto",
+    "kallisto" : {
+        "enable" : 1,
+        "tool" : "/opt/kallisto_linux-v0.42.4/kallisto",
+        "index_file" : "/datasets/srp073813/reference/kallisto_transcripts.idx",
+        "arguments" : "quant -b 8 -t 8"
+    },
+    "STAR" : {
+        "enable" : 1,
+        "tool" : "/opt/STAR-2.5.2b/bin/Linux_x86_64_static/STAR",
+        "reference_gene" : "GRCh37_E75",
+        "gene_path" : "/path/to/genomeDir",
+        "arguments" : "--runMode alignReads --quantMode GeneCounts --genomeLoad LoadAndKeep --readFilesCommand zcat --runThreadN 8"
+    },
+    "cleanup" : 0,
+    "verbose": 1
+}
+

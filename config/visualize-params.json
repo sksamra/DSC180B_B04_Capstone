@@ -1,0 +1,50 @@
+{
+    "out_dir" : "data/out",
+    "gene_hist" : {
+        "enable" : 1,
+        "max_genes" : 8000,
+        "nbins" : 100,
+        "title" : "Distribution of Genes Based on Spread Metric: All vs Top Genes"
+    },
+    "sra_lm" : {
+        "enable" : 1,
+        "sra" : ["SRR3438555", "SRR3438560"],
+        "normalized_counts" : "data/out/normalized_counts.tsv",
+        "vst_counts" : "data/out/vst_transformed_counts.tsv",
+        "title" : "%sra% Regression Log(Norm) v VST counts"
+    },
+    "ma_plot" : {
+        "enable" : 1,
+        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
+        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "src_image" : "MAplot.png",
+        "title" : "MA Plot: Brain Region vs Disorder"
+    },
+    "heat_map" : {
+        "enable" : 1,
+        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
+        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "src_image" : "heatmap.png",
+        "title" : "Heat Map: Brain Region vs Disorder"
+    },
+    "histogram" : {
+        "enable" : 1,
+        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
+        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "title" : "Histograms Differential Gene Expression vs Control",
+        "ylim" : 2000
+    },
+    "corrmatrix" : {
+        "enable" : 1,
+        "title" : "Spearman Correlations of log2 fold gene expression"
+    },
+    "venn" : {
+        "enable" : 1,
+        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
+        "pvalue_cutoff" : 0.05,
+        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "title" : "Venn Diagram Disorders"
+    },
+    "verbose": 1
+}
+

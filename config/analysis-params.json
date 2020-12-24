@@ -1,0 +1,19 @@
+{
+    "output_prefix" : "data/out/%brain_region%",
+    "DESeq2" : {
+        "Rscript" : "/opt/conda/envs/r-bio/bin/Rscript",
+        "brain_regions" : ["AnCg", "nAcc", "DLPFC"],
+        "disorders" : ["Major Depression", "Schizophrenia", "Bipolar Disorder"],
+        "control" : "Control",
+        "disorder_comparisons" : [["Major Depression", "Bipolar Disorder"], ["Major Depression", "Schizophrenia"], ["Bipolar Disorder", "Schizophrenia"]],
+        "input_counts" : "data/out/pca_normalized_counts.tsv",
+	    "input_features" : "data/out/features.tsv",
+        "source" : "src/analysis/analysis.r",
+    	"full" : "Age+PMI+pH+Disorder",
+	    "reduced" : "Age+PMI+pH",
+        "parallel" : 0
+    },
+    "cleanup" : 0,
+    "verbose": 1
+}
+

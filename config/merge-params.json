@@ -1,0 +1,28 @@
+{
+    "input" : "data/tmp",
+    "count" : {
+    	"enable" : 1,
+        "format" : "kallisto",
+        "skiprows" : 4,
+        "column_count" : 4,
+        "skip_samples" : ["SRR3438888"],
+        "filter_keep_genes" : "NM_",
+        "filter_remove_genes" : ["chrX", "chrY"],
+        "filter_names" : "/datasets/srp073813/reference/Gene_Naming.csv",
+        "run_database" : "data/raw/SraRunTable.csv",
+        "imputes" : ["Brain_pH"],
+        "features" : ["Run", "clinical_diagnosis", "age_at_death", "Brain_pH", "brain_region", "post-mortem_interval"],
+        "rename" : {"age_at_death" : "Age", "post-mortem_interval": "PMI", "Brain_pH": "pH", "clinical_diagnosis" : "Disorder"},
+        "output_matrix" : "data/out/gene_matrix.tsv",
+        "output_features" : "data/out/features.tsv"
+    },
+    "bam" : {
+    	"enable" : 0,
+    	"output" : "data/tmp/merged.bam",
+    	"tool" : "/usr/local/bin/samtools",
+    	"arguments" : "merge --threads 8"
+    },
+    "cleanup" : 0,
+    "verbose": 1
+}
+
