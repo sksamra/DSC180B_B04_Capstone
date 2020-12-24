@@ -307,6 +307,7 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
             command +=" "
             command += "-o " + filename
             command += " " + url
+
             if not os.path.exists(filename):
                 if verbose==1:
                     logging.info(command)
@@ -316,20 +317,35 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
             if not os.path.isdir(biosample_dir):
                 if verbose:
                     logging.info("mkdir " + biosample_dir)
-                os.makedirs(biosample_dir)
+                if not "proxy" in aligncount["tool"]:
+                    os.makedirs(biosample_dir)
             command = "tar -C " + biosample_dir + " -xzf " + filename
             if verbose==1:
                 logging.info(command)
-            os.system(command)
-            # Extract Gene Count
-            subfolder = [ f.path for f in os.scandir(biosample_dir) if f.is_dir() ][0]
+            if not "proxy" in aligncount["tool"]:
+                os.system(command)
+                # Extract Gene Count
+                subfolder = [ f.path for f in os.scandir(biosample_dir) if f.is_dir() ][0]
+            else:
+                subfolder = biosample_dir + "/data"
             src_gene_count = subfolder + "/" + aligncount["read_counts_file"]
             # Copy Gene Count file
             dst_gene_count = biosample_dir + "_" + "ReadsPerGene.out.tab"
-            copyfile(src_gene_count, dst_gene_count)
+            if not "proxy" in aligncount["tool"]:
+                copyfile(src_gene_count, dst_gene_count)
             if verbose==1:
                 logging.info("cp " + src_gene_count + " " + dst_gene_count)
-        
+
+            # Generate pseudo random data
+            if "proxy" in aligncount["tool"]:
+                fp = open(dst_gene_count, 'w')
+                fp.write("ReferenceID\tuniqueReadCount\ttotalReadCount\tmultimapAdjustedReadCount\tmultimapAdjustedBarcodeCount\n")
+                # Output a bunch of random genes
+                for gene_num in range(1, 31):
+                    fp.write("NM_" + str(gene_num) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\n")
+                fp.close()
+
+
 
             number += 1
         

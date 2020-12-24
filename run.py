@@ -70,9 +70,10 @@ def main(targets):
 
         # If we are testing then we do not execute alignment tool as its too slow
         # Instead we do a procy generation of pseudo-generated random counts
-        if 'test' in targets:
+        if ('test-data' in targets) or ('test' in targets):
             data_cfg["kallisto"]["tool"] = "kallisto-proxy"
             data_cfg["STAR"]["tool"] = "STAR-proxy"
+            data_cfg["download"]["tool"] = "curl-proxy"
 
 
         data = etl.process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, cleanup, data_cfg["verbose"])
@@ -157,8 +158,8 @@ def main(targets):
 
         # Limit analysis for test to one brain region/disorder
         if 'test' in targets:
-            deseq2["brain_regions"] = ["AnCg"]
-            deseq2["disorders"] = ["Major Depression"]
+            #deseq2["biofluid_regions"] = ["AnCg"]
+            #deseq2["disorders"] = ["Major Depression"]
             deseq2["parallel"] = 0
         
            
@@ -180,15 +181,15 @@ def main(targets):
 
         # Limit visualization for test
         if 'test' in targets:
-            ma_plot["brain_regions"] = ["AnCg", "AnCg", "AnCg"]
-            ma_plot["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
-            heat_map["brain_regions"] = ["AnCg", "AnCg", "AnCg"]
-            heat_map["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
-            histogram["brain_regions"] = ["AnCg", "AnCg", "AnCg"]
-            histogram["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
+            #ma_plot["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
+            #ma_plot["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
+            #heat_map["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
+            #heat_map["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
+            #histogram["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
+            #histogram["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
             histogram["ylim"] = 10
-            venn["brain_regions"] = ["AnCg", "AnCg", "AnCg"]
-            venn["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
+            #venn["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
+            #venn["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
             venn["pvalue_cutoff"] = 0.5
             
           
