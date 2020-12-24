@@ -8,7 +8,7 @@
     },
     "sra_lm" : {
         "enable" : 1,
-        "sra" : ["CSF0852", "SER9926"],
+        "sra" : ["SRR1568567", "SRR1568365"],
         "normalized_counts" : "data/out/normalized_counts.tsv",
         "vst_counts" : "data/out/vst_transformed_counts.tsv",
         "title" : "%sra% Regression Log(Norm) v VST counts"
