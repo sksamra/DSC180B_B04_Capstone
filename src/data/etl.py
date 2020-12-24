@@ -268,49 +268,107 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
     # if we have a patient filter adjust the number we process
     if filter_num_rows != -1:
         num_samples = filter_num_rows
-    
+
     sra_row_num = 0
-    for run in df_run_samples["Run"]:
-        # If run filter exists then start on correct place
-        if filter_start_row != -1 and sra_row_num < filter_start_row:
-            sra_row_num += 1
-            continue 
-        # If run filter exists then finish on correct place
-        if filter_num_rows != -1 and number > filter_num_rows:
-            break
-
-        if verbose:
-            logging.info("# ---------------------------------------------------")
-            logging.info("# Starting sample # " + str(number) + " out of " + str(num_samples))
-
-        seed(99999 + number)  # Set the seed so it is always same random values
+    
+    # Download Option
+    if "curl" in aligncount["tool"]:
+        for index, row in df_run_samples.iterrows():
+            # If run filter exists then start on correct place
+            if filter_start_row != -1 and sra_row_num < filter_start_row:
+                sra_row_num += 1
+                continue 
+            # If run filter exists then finish on correct place
+            if filter_num_rows != -1 and number > filter_num_rows:
+                break
             
-        sample = {}
-        sample["FASTQ_1"] = fastq1_path.replace("%run%", run)
-        sample["FASTQ_2"] = fastq2_path.replace("%run%", run)
-        
-        # Step 2.1 : Process (ie create clean or copies of a pair sample)
-        process_out_files = [None, None]
-        process_out_files[0] = tmp_dir + "/out.1.fastq.gz"
-        process_out_files[1] = tmp_dir + "/out.2.fastq.gz"
-        process_out_files = invoke_process(sample, process, tmp_dir, process_out_files, verbose)
+            if verbose:
+                logging.info("# ---------------------------------------------------")
+                logging.info("# Starting sample # " + str(number) + " out of " + str(num_samples))
 
-        # If we do not want to aligncount, then we can stop processing after first iteration
-        if aligncount["enable"] != 1:
-            break
+            seed(99999 + number)  # Set the seed so it is always same random values
 
-        # Step 2.2 : Align (ie create a aligned BAM file)
-        invoke_align(sample, aligncount, tmp_dir, process_out_files, cleanup, verbose)
+            # Download
+            url = row["DOWNLOAD URL"]
+            biosample_id = row["BIOSAMPLE NAME"][0:4]
+            biosample_fluid = row["BIOSAMPLE NAME"][-3:]
+            biosample_dir = "./data/tmp/" + biosample_id + biosample_fluid
+            filename = biosample_dir + ".tgz"
 
-        # Step 2.3 : Delete the tmp fastq.gz files from cutadapt step
-        if process["enable"] == 1:
-            if cleanup==1:
+            command = aligncount["tool"]
+            command += " "
+            command += aligncount["arguments"]
+            command +=" "
+            command += "-o " + filename
+            command += " " + url
+            if not os.path.exists(filename):
+                if verbose==1:
+                    logging.info(command)
+                os.system(command)
+
+            # Make dir and Unzip
+            if not os.path.isdir(biosample_dir):
                 if verbose:
-                    logging.info("rm " + process_out_files[0])
-                    logging.info("rm " + process_out_files[1])
-                os.remove(process_out_files[0])        
-                os.remove(process_out_files[1])            
-        number += 1
+                    logging.info("mkdir " + biosample_dir)
+                os.makedirs(biosample_dir)
+            command = "tar -C " + biosample_dir + " -xzf " + filename
+            if verbose==1:
+                logging.info(command)
+            os.system(command)
+            # Extract Gene Count
+            subfolder = [ f.path for f in os.scandir(biosample_dir) if f.is_dir() ][0]
+            src_gene_count = subfolder + "/" + aligncount["read_counts_file"]
+            # Copy Gene Count file
+            dst_gene_count = tmp_dir + "/" + biosample_id + biosample_fluid + "_" + "ReadsPerGene.out.tab"
+            copyfile(src_gene_count, dst_gene_count)
+            if verbose==1:
+                logging.info("cp " + src_gene_count + " " + dst_gene_count)
+        
+
+            number += 1
+        
+    else:
+        for run in df_run_samples["Run"]:
+            # If run filter exists then start on correct place
+            if filter_start_row != -1 and sra_row_num < filter_start_row:
+                sra_row_num += 1
+                continue 
+            # If run filter exists then finish on correct place
+            if filter_num_rows != -1 and number > filter_num_rows:
+                break
+
+            if verbose:
+                logging.info("# ---------------------------------------------------")
+                logging.info("# Starting sample # " + str(number) + " out of " + str(num_samples))
+
+            seed(99999 + number)  # Set the seed so it is always same random values
+                
+            sample = {}
+            sample["FASTQ_1"] = fastq1_path.replace("%run%", run)
+            sample["FASTQ_2"] = fastq2_path.replace("%run%", run)
+            
+            # Step 2.1 : Process (ie create clean or copies of a pair sample)
+            process_out_files = [None, None]
+            process_out_files[0] = tmp_dir + "/out.1.fastq.gz"
+            process_out_files[1] = tmp_dir + "/out.2.fastq.gz"
+            process_out_files = invoke_process(sample, process, tmp_dir, process_out_files, verbose)
+
+            # If we do not want to aligncount, then we can stop processing after first iteration
+            if aligncount["enable"] != 1:
+                break
+
+            # Step 2.2 : Align (ie create a aligned BAM file)
+            invoke_align(sample, aligncount, tmp_dir, process_out_files, cleanup, verbose)
+
+            # Step 2.3 : Delete the tmp fastq.gz files from cutadapt step
+            if process["enable"] == 1:
+                if cleanup==1:
+                    if verbose:
+                        logging.info("rm " + process_out_files[0])
+                        logging.info("rm " + process_out_files[1])
+                    os.remove(process_out_files[0])        
+                    os.remove(process_out_files[1])            
+            number += 1
 
     if verbose:
         logging.info("# Finished")

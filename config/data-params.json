@@ -3,11 +3,11 @@
     "tmp_data_directory": "./data/tmp",
     "out_data_directory": "./data/out",
     "sra_runs" : {
-        "input_database" : "/datasets/srp073813/reference/SraRunTable.csv",
-        "output_database" : "data/raw/SraRunTable.csv",
-        "filter_enable" : 0,
-        "filter_start_row" : 120,
-        "filter_num_rows" : 10   
+        "input_database" : "/datasets/SRP046292/exRNA_Atlas_CORE_Results.csv",
+        "output_database" : "data/raw/exRNA_Atlas_CORE_Results.csv",
+        "filter_enable" : 1,
+        "filter_start_row" : 0,
+        "filter_num_rows" : 2   
     },
     "process" : {
         "enable" : 0,
@@ -18,7 +18,7 @@
         "fastq1_path" : "/datasets/srp073813/%run%_1.fastq.gz", 
         "fastq2_path" : "/datasets/srp073813/%run%_2.fastq.gz"
     },
-    "aligncount" : "kallisto",
+    "aligncount" : "download",
     "kallisto" : {
         "enable" : 1,
         "tool" : "/opt/kallisto_linux-v0.42.4/kallisto",
@@ -31,6 +31,12 @@
         "reference_gene" : "GRCh37_E75",
         "gene_path" : "/path/to/genomeDir",
         "arguments" : "--runMode alignReads --quantMode GeneCounts --genomeLoad LoadAndKeep --readFilesCommand zcat --runThreadN 8"
+    },
+    "download" : {
+        "enable" : 1,
+        "tool" : "curl",
+        "arguments" : "-L -R",
+        "read_counts_file" : "readCounts_gencode_sense.txt"
     },
     "cleanup" : 0,
     "verbose": 1
