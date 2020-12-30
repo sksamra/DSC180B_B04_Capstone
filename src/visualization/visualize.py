@@ -236,9 +236,39 @@ def process_plot_gene_hist(out_dir, gene_hist):
 	plt.savefig(out_dir + "/top_genes.png")
 	return
 
+def process_plot_missing(out_dir, missing):
+	# Do this in visualization
+	title = missing["title"]
+	df_full = pd.read_csv("./data/out/gene_matrix_full.tsv", index_col=0, sep="\t")
+	df_core = pd.read_csv("./data/out/features.tsv", sep="\t")
+	fig, ax = plt.subplots(nrows=4, ncols=1, figsize=(20,18))
+
+	(df_full.isna().sum()*100 / df_full.shape[0]).plot(ax=ax[0], kind='bar')
+	t = ax[0].set_title(title + " over all samples", color="red")
+	ax[0].get_xaxis().set_visible(False)
+
+	runs = df_core[ df_core["Biofluid"] ==  "Cerebrospinal"]["Run"]
+	df2 = df_full[runs]
+	(df2.isna().sum()*100 / df2.shape[0]).plot(ax=ax[1], kind='bar')
+	t = ax[1].set_title(title + " over all Cerebrospinal Biofluid's", color="red")
+	ax[1].get_xaxis().set_visible(False)
+
+	runs = df_core[ (df_core["Biofluid"] ==  "Cerebrospinal") & (df_core["sex"] ==  "male") ]["Run"]
+	df2 = df_full[runs]
+	(df2.isna().sum()*100 / df2.shape[0]).plot(ax=ax[2], kind='bar')
+	t = ax[2].set_title(title + " over all Male Cerebrospinal Biofluid's", color="red")
+	ax[2].get_xaxis().set_visible(False)
+
+
+	runs = df_core[ (df_core["Biofluid"] ==  "Cerebrospinal") & (df_core["sex"] ==  "male")  & (df_core["Disorder"] ==  "Parkinson")]["Run"]
+	df2 = df_full[runs]
+	(df2.isna().sum()*100 / df2.shape[0]).plot(ax=ax[3], kind='bar')
+	t = ax[3].set_title(title + " over all Male Parkinson Cerebrospinal Biofluid's", color="red")
+	plt.savefig(out_dir + "/missing.png")
+	return
 
     
-def process_plots(out_dir, gene_hist, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, verbose):
+def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, verbose):
 		
 	if verbose:
 		logging.info("# ---------------------------------------------------")
@@ -247,6 +277,9 @@ def process_plots(out_dir, gene_hist, sra_lm, ma_plot, heat_map, histogram, corr
 	# Process SRA LM Plots of Normalized Plots
 	if gene_hist["enable"] == 1:
 		process_plot_gene_hist(out_dir, gene_hist)
+	# Process SRA LM Plots of Normalized Plots
+	if missing_plot["enable"] == 1:
+		process_plot_missing(out_dir, missing_plot)
 	# Process SRA LM Plots of Normalized Plots
 	if sra_lm["enable"] == 1:
 		process_normalized_count_plots(out_dir, sra_lm)

@@ -6,9 +6,13 @@
         "nbins" : 100,
         "title" : "Distribution of Genes Based on Spread Metric: All vs Top Genes"
     },
+    "missing_plot" : {
+        "enable" : 1,
+        "title" : "Percentage of Missing Genes over"
+    },
     "sra_lm" : {
         "enable" : 1,
-        "sra" : ["SRR1568567", "SRR1568365"],
+        "sra" : ["SRR1568567", "SRR1568584"],
         "normalized_counts" : "data/out/normalized_counts.tsv",
         "vst_counts" : "data/out/vst_transformed_counts.tsv",
         "title" : "%sra% Regression Log(Norm) v VST counts"
@@ -32,7 +36,7 @@
         "biofluid_regions" : ["Cerebrospinal", "Serum"],
         "disorders" : ["Parkinson", "Alzheimer"],
         "title" : "Histograms Differential Gene Expression vs Control",
-        "ylim" : 2000
+        "ylim" : 55
     },
     "corrmatrix" : {
         "enable" : 1,

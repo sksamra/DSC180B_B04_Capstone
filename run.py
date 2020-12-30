@@ -175,6 +175,7 @@ def main(targets):
             visualize_cfg = json.load(fh)
         out_dir = visualize_cfg["out_dir"]
         gene_hist = visualize_cfg["gene_hist"]
+        missing_plot = visualize_cfg["missing_plot"]
         sra_lm = visualize_cfg["sra_lm"]
         ma_plot = visualize_cfg["ma_plot"]
         heat_map = visualize_cfg["heat_map"]
@@ -184,19 +185,11 @@ def main(targets):
 
         # Limit visualization for test
         if 'test' in targets:
-            #ma_plot["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
-            #ma_plot["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
-            #heat_map["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
-            #heat_map["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
-            #histogram["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
-            #histogram["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
             histogram["ylim"] = 10
-            #venn["biofluid_regions"] = ["AnCg", "AnCg", "AnCg"]
-            #venn["disorders"] = ["Major_Depression", "Major_Depression", "Major_Depression"]
             venn["pvalue_cutoff"] = 0.5
             
           
-        data = visualize.process_plots(out_dir, gene_hist, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, visualize_cfg["verbose"])
+        data = visualize.process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, visualize_cfg["verbose"])
         success = True
 
 

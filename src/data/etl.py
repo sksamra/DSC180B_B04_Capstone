@@ -306,6 +306,12 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
 
             seed(99999 + number)  # Set the seed so it is always same random values
 
+            # Ignore non passing cases
+            if row["MEETS ERCC QC STANDARDS?"] != "PASS":
+                biosample_dir = "./data/tmp/" + row["Run"]
+                filename = biosample_dir + ".tgz"
+                continue
+
             # Download
             url = row["DOWNLOAD URL"]
             biosample_dir = "./data/tmp/" + row["Run"]
@@ -450,6 +456,10 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
     if count["format"] != "STAR":
         skip_rows = 1
     
+    number = 1
+    indexes = set()
+    print("Build Indexes")
+    number_entries = 0
     for filename in os.listdir(input_dir):
         if not filename.endswith(".tab"):
             continue
@@ -462,19 +472,35 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
         tab_file = input_dir + "/" + filename
         processed_file.append(tab_file)
         if verbose:
-            logging.info("Input: " + filename)
+            logging.info("Analysing Input: " + filename)
         df = pd.read_csv(input_dir + "/" + filename, sep="\t", skiprows=skip_rows, header=None)
-        print(input_dir + "/" + filename)
-        
         df = df.set_index(0)
-        df = df.iloc[:,count_column-1].to_frame()
-        df = df.transpose()
-        df.index = [sample_name]                    
-        if merged_count_df.shape[0] == 0:
-            merged_count_df = df
-        else:
-            merged_count_df = merged_count_df.append(df, sort=True)
+        indexes = indexes.union(df.index)
+        number_entries += 1
+    print("Finish Indexes")
+
+    merged_count_df = pd.DataFrame(index=indexes)
+    #print(indexes, len(indexes))
+
+    
+    # Now process each column in individual gene matrix files and append to merged gene matrix
+    for filename in os.listdir(input_dir):
+        if not filename.endswith(".tab"):
+            continue
+        sample_name = filename[0:filename.find("_")]
+        if sample_name in count["skip_samples"]:
+            # Ignore these samples as they are bad
+            logging.info("Skipping sample: " + sample_name)
+            df_run_samples = df_run_samples[df_run_samples["Run"] != sample_name]
+            continue
+        tab_file = input_dir + "/" + filename
+        processed_file.append(tab_file)
+        df = pd.read_csv(input_dir + "/" + filename, sep="\t", skiprows=skip_rows, header=None)
         
+        df = df.set_index(0)   
+        merged_count_df[sample_name] = df.iloc[:,count_column-1]
+        print("Processing", sample_name, number, "of", number_entries)
+
         # For STAR open Log file to get PRUA (percentage of read uniquiely mapped) 
         if (count["format"] == "STAR") and ("PRUA" in count["features"]):
             PRUA = 0.0
@@ -486,7 +512,9 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
                     PRUA = float(re.findall("[-+]?\d*\.\d+|\d+", line)[0])
                     break
             df_run_samples.loc[df_run_samples["Run"] == sample_name, "PRUA"] = PRUA
+        number += 1
 
+    
     # filter only selected features
     df_run_samples = df_run_samples[count["features"]]
     # impute any columns requested
@@ -499,7 +527,7 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
         df_run_samples = df_run_samples[df_run_samples["PRUA"] != -1]
     
     # transpose so columns are runs, and rows are genes
-    merged_count_df = merged_count_df.transpose()
+    #merged_count_df = merged_count_df.transpose()
     # make sure column and row orders match - valid ones are the intersection
     valid_sra_runs = list(set(df_run_samples["Run"].tolist()).intersection( set(merged_count_df.columns.to_numpy()) ))
     df_run_samples = df_run_samples[df_run_samples["Run"].isin(valid_sra_runs)]
@@ -526,8 +554,14 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
     # rename and drop nan's
     df_run_samples = df_run_samples.replace(count["replace"]["from"], count["replace"]["to"])
     merged_count_df.index.name = ""
+    
+    if verbose == 1:
+        print("Before Drop Nan size=", merged_count_df.shape[0])
+        merged_count_df.to_csv("data/out/gene_matrix_full.tsv", sep='\t')
     merged_count_df = merged_count_df.dropna()
-
+    if verbose == 1:
+        print("After Drop Nan size=", merged_count_df.shape[0])
+    
     # save files
     merged_count_df.to_csv(count["output_matrix"], sep='\t')
     df_run_samples.to_csv(count["output_features"], sep='\t', index=False)
@@ -637,14 +671,6 @@ def process_normalize(deseq2, output_dir, cleanup, verbose):
     if verbose:
         logging.info("# ---------------------------------------------------")
         logging.info("# Normalize")
-
-    # Filter out Nan's
-
-    input_counts = deseq2["input_counts"]
-    df_input_counts = pd.read_csv(input_counts)
-    
-    input_features = deseq2["input_features"]
-    df_input_features = pd.read_csv(input_features)
     
     if os.path.exists(deseq2["Rscript"]):
         command = deseq2["Rscript"] + " "
