@@ -4,9 +4,9 @@
 
 #### Section B04: Genetics
 
-#### Authors: Saroop Samra, Justin Kang
+#### Authors: Saroop Samra
 
-#### Date : 10/23/2020
+#### Date : 12/30/2020
 
 ### Overview
 
@@ -462,7 +462,7 @@ Work completed:
 * Saroop Samra, refactored the data pipeline step. It now is comprehensive and includes the process, align, merge and normalize steps. This required updating the run.py, defining a new JSON schema, updating the etl.py. The etl.py source file has been  refactored so even though it is nearly 300 lines of code, it is documented and refactored into 7  functions to make it easier to comprehend and maintain. Saroop also added an "all" pipeline step that runs all the individual pipeline steps, one after another. Saroop also implemented the merge pipeline step which iterates a directory for the gene count TSV files and uses pandas to merge them into one master gene count file as well as a experiment table that associates the sample labels with the patient features. (as well as optionally merging bam files). The qc pipeline step now also supports picard for doing quality checks on bam files. Saroop also added a patient sample database JSON file and refactored the data configuration JSON to include a reference to the sample database as well as a filter feature. Recently Saroop worked on the normalize and merge steps to take into account filtering of genes. Additionaly, Saroop worked on the analysis processing using DESeq2 which processsed the 9 data sets (3 brain regions x 3 disorders). Finally, Saroop worked on the visualization step to create the different charts.
 
 
-* Justin Kang, worked closely with Saroop on the design and code review of the pipeline steps. He worked on the references README which includes all the references on the tools we plan to use as well as the original paper and references for the medical terms in the paper. Implementation for the fastqc code was completed in config/data-quality-params.json. The data_quality pipeline step was also completed by implementing code in run.py and in src/data_quality/qc.py. This step is used to call fastqc which generates reports that you can use to assess the conditions of the raw  sequencing data prior to any concrete analysis. Justin also converted our original report into a jupyter notebook with help from Saroop which can be found in the notebooks folder as report. ipynb. Justin performed much of the exploratory data analysis (EDA) for our main report which was done in a separate notebook with the most relevant information being transfered over to the main report. Descriptions for the charts and tables presented in the main report were also completed with help from Saroop. Explanations for cutadapt and FastQC implementation were also created by Justin after performing separate tests to validate our final decision in not using cutadpat
+* 
 
 
 

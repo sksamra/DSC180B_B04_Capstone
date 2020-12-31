@@ -53,9 +53,12 @@ gene_count.table <- read.table(file=gene_matrix_file, sep="\t", header=TRUE, row
 
 
 ## Use the DESeqDataSetFromMatrix to create a DESeqDataSet object
-#deseq_data <- DESeqDataSetFromMatrix(countData = round(gene_count.table + 1), colData = experiment_features, design = ~ genome_ratio+reads+sex+Disorder)
+#deseq_data <- DESeqDataSetFromMatrix(countData = round(gene_count.table + 1), colData = experiment_features, design = ~ expired_age+sex+PMI+sn_depigmentation+Braak_score+TangleTotal+Plaque_density+PlaqueTotal+Disorder)
 # Add 1 to avoid error: normalize: every gene contains at least one zero, cannot compute log geometric 
-deseq_data <- DESeqDataSetFromMatrix(countData = gene_count.table, colData = experiment_features, design = ~ genome_ratio+reads+sex+Disorder)
+deseq_data <- DESeqDataSetFromMatrix(countData = gene_count.table, colData = experiment_features, design = ~ expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal+Disorder)
+
+
+
 
 dds_norm <-  estimateSizeFactors(deseq_data)
 

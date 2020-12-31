@@ -8,8 +8,8 @@
         "input_counts" : "data/out/pca_normalized_counts.tsv",
 	    "input_features" : "data/out/features.tsv",
         "source" : "src/analysis/analysis.r",
-    	"full" : "genome_ratio+rreads+treads+Disorder",
-	    "reduced" : "genome_ratio+rreads+treads",
+    	"full" : "expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal+Disorder",
+	    "reduced" : "expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal",
         "parallel" : 0
     },
     "cleanup" : 0,

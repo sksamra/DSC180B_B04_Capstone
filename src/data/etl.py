@@ -258,9 +258,19 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
         if not os.path.exists(input_database2):
             input_database2 = "../" +input_database2
         df_sra = pd.read_csv(input_database2)
-        df_sra = df_sra[["Run", "sex", "Sample Name"]]
-        df = pd.merge(df, df_sra, on="Sample Name")
+        df_sra = df_sra[["Run", "sex", "Sample Name", "submitted_subject_id"]]
         
+        # Open S1 database
+        input_database3 = sra_runs["input_database3"]
+        if not os.path.exists(input_database3):
+            input_database3 = "../" +input_database3
+        df_s1 = pd.read_csv(input_database3)
+        df_s1["submitted_subject_id"] = df_s1["Subject ID"].str.replace("-", "_")
+
+        df_s1 = pd.merge(df_s1, df_sra, on="submitted_subject_id")
+        df_s1 = df_s1.drop(["submitted_subject_id", "Subject ID", "gender M=1", "ClinicalDXSummary", "Control", "AD", "PD"], axis=1)
+        
+        df = pd.merge(df, df_s1, on="Sample Name")
         df.to_csv(sra_runs["output_database"])
 
 
