@@ -1,16 +1,17 @@
-# Title: Genetics Replication Project
+# Title: Genetic Overlap between Alzheimer's, Parkinson’s, and healthy patients
 
 #### Capstone Project: Data Science DSC180A
 
 #### Section B04: Genetics
 
-#### Authors: Saroop Samra
+#### Authors: Saroop Samra, Justin Lu, Xuanyu Wu
 
 #### Date : 12/30/2020
 
 ### Overview
 
-This repository code is for the replication project for the paper: Post-mortem molecular profiling of three psychiatric disorders (https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-017-0458-5). The data includes that RNA sequences from tissues from three regions of the brain (interior cingulate cortex, dorsolateral prefrontal cortex, and nucleus accumbens), and is from three groups of 24 patients each diagnosed with a Psychiatric disorder (schizophrenia, bipolar disorder, or major depressive disorder) as well as a control group. The analysis performed shows the correlation of certain genes and psychiatric disorders.
+This repository code is for the replication project for the paper: Profiles of Extracellular miRNA in Cerebrospinal Fluid and Serum from Patients with Alzheimer’s and Parkinson’s Diseases Correlate with Disease Status and Features of Pathology (https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0094839). The data includes that miRNA sequences from tissues from two biofluids (serum and cerebrospinal fluid), and is from 69 patients with Alzheimer's disease, 67 with Parkinson's disease and 78 neurologically normal controls using next generation small RNA sequencing (NGS).
+
 
 ### Running the project
 
@@ -28,8 +29,8 @@ This repository code is for the replication project for the paper: Post-mortem m
 
 •	This pipeline step also uses an additional CSV file that is the SRA run database, a sample looks like as follows:
 
-    Run age_at_death    Brain_pH    brain_region    Bytes   Center Name clinical_diagnosis
-    SRR3438555  40  6.76    AnCg    2585349730  GEO Control
+    Run expired_age    CONDITION    BIOFLUID     
+    SRR1568567  40  Parkinson's Disease Cerebrospinal 
 
 
 
@@ -42,15 +43,17 @@ This repository code is for the replication project for the paper: Post-mortem m
 •   The configuration also includes an attribute to the SRA run input database (described above), and an attribute of where to store that in the data folder. Additional filter attributes are included for ease of use to avoid processing all patients, if this filter_enable is set it will only process a subset of SRA rows (filter_start_row to filter_start_row + filter_num_rows).
 
     "sra_runs" : {
-        "input_database" : "/datasets/srp073813/reference/SraRunTable.csv",
-        "output_database" : "data/raw/SraRunTable.csv",
+        "input_database" : "/datasets/SRP046292/exRNA_Atlas_CORE_Results.csv",
+        "input_database2" : "/datasets/SRP046292/SraRunTable.csv",
+        "input_database3" : "/datasets/SRP046292/Table_S1.csv",
+        "output_database" : "data/raw/exRNA_Atlas_CORE_Results.csv",
         "filter_enable" : 0,
         "filter_start_row" : 120,
         "filter_num_rows" : 10   
     },
     
 
-•	The first transformation of the data is "process" that uses the following data configuration below. Otherwise it will invoke cutadapt which finds and removes adapter sequences. The attributes include the adapters (r1 and r2) to identify the start and end of pairs are a JSON array. The attribute enable allows to disable this cleaning step, instead it will simply copy the paired files from the source dataset. The arguments attribute allows flexible setting of any additional attribute to the cutadapt process. Finally, we have two wildcard paths that indicate the location of the SRA fastq pair files (fastq1 and fastq2).
+•	An optional transformation of the data is "process" that uses the following data configuration below that will invoke cutadapt which finds and removes adapter sequences. The attributes include the adapters (r1 and r2) to identify the start and end of pairs are a JSON array. The attribute enable allows to disable this cleaning step, instead it will simply copy the paired files from the source dataset. The arguments attribute allows flexible setting of any additional attribute to the cutadapt process. Finally, we have two wildcard paths that indicate the location of the SRA fastq pair files (fastq1 and fastq2).
 
     "process" : {
         "enable" : 1,
@@ -62,9 +65,18 @@ This repository code is for the replication project for the paper: Post-mortem m
         "fastq2_path" : "/datasets/srp073813/%run_2.fastq.gz"
     },
     
-•   The second transformation of the data is "aligncount" that can be set to either use STAR or Kallisto. The choice of STAR or kallisto step is controlled by the aligncount attribute:
+•   The second transformation of the data is "aligncount" that can be set to either use download, STAR or Kallisto. The choice is controlled by the aligncount attribute:
 
-    "aligncount" : "kallisto",
+    "aligncount" : "download",
+
+•   download step will use the ftp location of the gzip file in the Sra table and download using the curl command and unzips and the extracts the readCounts_gencode_sense.txt which represents thae gene counts for the sample. 
+
+    "download" : {
+        "enable" : 1,
+        "tool" : "curl",
+        "arguments" : "-L -R",
+        "read_counts_file" : "readCounts_gencode_sense.txt"
+    },
 
 •   kallisto uses the index_file attribute is the location of the directory of the reference genome, which for this replication project was GRCh37_E75. The arguments attribute allows flexible setting of any additional attribute to the kallisto process. Including the bootstaro samples.The attribute enable allows to disable this alignment step, this is useful for debugging the process prior step, for example, you can run quality checks on the processed fastq files before proceeding to alignment. 
 
@@ -98,17 +110,22 @@ This repository code is for the replication project for the paper: Post-mortem m
     # ---------------------------------------------------
     # Process
     # ---------------------------------------------------
-    # Starting sample # 1  out of  352
-    /opt/conda/bin/cutadapt --pair-adapters --cores=4  -a AAAAA -a GGGG -A CCCCC -A TTTT -o ./data/tmp/out.1.fastq.gz -p ./data/tmp/out.2.fastq.gz /datasets/srp073813/SRR3438555_1.fastq.gz /datasets/srp073813/SRR3438555_2.fastq.gz
-    /opt/kallisto_linux-v0.42.4/kallisto quant -b 100 -i /datasets/srp073813/reference/kallisto_transcripts.idx ./data/tmp/out.1.fastq.gz ./data/tmp/out.2.fastq.gz -o ./data/tmp/SRR3438555_ReadsPerGene.out.tab
-    rm ./data/tmp/out.1.fastq.gz
-    rm ./data/tmp/out.2.fastq.gz
     # ---------------------------------------------------
-    # Starting sample # 2  out of  352
-    /opt/conda/bin/cutadapt --pair-adapters --cores=4  -a AAAAA -a GGGG -A CCCCC -A TTTT -o ./data/tmp/out.1.fastq.gz -p ./data/tmp/out.2.fastq.gz /datasets/srp073813/SRR3438556_1.fastq.gz /datasets/srp073813/SRR3438556_2.fastq.gz
-    /opt/kallisto_linux-v0.42.4/kallisto quant -b 100 -i /datasets/srp073813/reference/kallisto_transcripts.idx ./data/tmp/out.1.fastq.gz ./data/tmp/out.2.fastq.gz -o ./data/tmp/SRR3438556_ReadsPerGene.out.tab
-    rm ./data/tmp/out.1.fastq.gz
-    rm ./data/tmp/out.2.fastq.gz
+    # Starting sample # 1 out of 1
+    # ---------------------------------------------------
+    # Starting sample # 1 out of 343
+    curl-proxy -L -R -o ./data/tmp/SRR1568613.tgz ftp://ftp.genboree.org/exRNA-atlas/grp/Extracellular%20RNA%20Atlas/db/exRNA%20Repository%20-%20hg19/file/exRNA-atlas/exceRptPipeline_v4.6.2/KJENS1-Alzheimers_Parkinsons-2016-10-17/sample_SAMPLE_1022_CONTROL_SER_fastq/CORE_RESULTS/sample_SAMPLE_1022_CONTROL_SER_fastq_KJENS1-Alzheimers_Parkinsons-2016-10-17_CORE_RESULTS_v4.6.2.tgz
+    sh: curl-proxy: command not found
+    mkdir ./data/tmp/SRR1568613
+    tar -C ./data/tmp/SRR1568613 -xzf ./data/tmp/SRR1568613.tgz
+    cp ./data/tmp/SRR1568613/data/readCounts_gencode_sense.txt ./data/tmp/SRR1568613_ReadsPerGene.out.tab
+    # ---------------------------------------------------
+    # Starting sample # 2 out of 343
+    curl-proxy -L -R -o ./data/tmp/SRR1568457.tgz ftp://ftp.genboree.org/exRNA-atlas/grp/Extracellular%20RNA%20Atlas/db/exRNA%20Repository%20-%20hg19/file/exRNA-atlas/exceRptPipeline_v4.6.2/KJENS1-Alzheimers_Parkinsons-2016-10-17/sample_SAMPLE_0427_PD_CSF_fastq/CORE_RESULTS/sample_SAMPLE_0427_PD_CSF_fastq_KJENS1-Alzheimers_Parkinsons-2016-10-17_CORE_RESULTS_v4.6.2.tgz
+    sh: curl-proxy: command not found
+    mkdir ./data/tmp/SRR1568457
+    tar -C ./data/tmp/SRR1568457 -xzf ./data/tmp/SRR1568457.tgz
+    cp ./data/tmp/SRR1568457/data/readCounts_gencode_sense.txt ./data/tmp/SRR1568457_ReadsPerGene.out.tab
     # ---------------------------------------------------
 
 
@@ -119,21 +136,23 @@ This repository code is for the replication project for the paper: Post-mortem m
 
 •   The configuration files for the data step are stored in config/count-params.json. These include the parameters for the count merge and bam merge and it's associated arguments.
 
-•   The format attrbute informs if to process kallisto (or STAR) files. The gene counts are merged into a TSV file and as well as a A feature table based on the SRA run table. Additional STAR attributes in the JSON allow you to specify skiprows used when processing the STAR gene count files as well as identifying the column from the STAR gene matrix file to use as the column used to. The STAR log files (with PRUA information) and add an additional PRUA features to feature table. You can limit the features by setting the "features" json attribute to only the features you want to have. There is an additional imputes attribute that allows you to impute any column with missing data. The attributes also include the "filter_names" gene table used to remove X and Y chromosomes as well as removing false-positive genes. Finally, we can rename the freature columns before we save out the feature table.
+•   The format attrbute informs if to process downlload, kallisto (or STAR) files. The gene counts are merged into a TSV file and as well as a feature table based on the SRA run table. Additional STAR attributes in the JSON allow you to specify skiprows used when processing the  gene count files as well as identifying the column from the  gene matrix file to use as the column used to. There is an additional imputes attribute that allows you to impute any column with missing data. The attributes also include an optional "filter_names" gene table used to remove genes as well as removing false-positive genes. Finally, we can rename the feature columns before we save out the feature table.
 
     "count" : {
         "enable" : 1,
-        "format" : "kallisto",
+        "format" : "download",
         "skiprows" : 4,
-        "column_count" : 4,
-        "skip_samples" : ["SRR3438888"],
+        "column_count" : 1,
+        "skip_samples" : ["SRR1568391"],
+        "enable_filter" : 0,
         "filter_keep_genes" : "NM_",
         "filter_remove_genes" : ["chrX", "chrY"],
         "filter_names" : "/datasets/srp073813/reference/Gene_Naming.csv",
-        "run_database" : "data/raw/SraRunTable.csv",
-        "imputes" : ["Brain_pH"],
-        "features" : ["Run", "clinical_diagnosis", "age_at_death", "Brain_pH", "brain_region", "post-mortem_interval"],
-        "rename" : {"age_at_death" : "Age", "post-mortem_interval": "PMI", "Brain_pH": "pH", "clinical_diagnosis" : "Disorder"},
+        "run_database" : "data/raw/exRNA_Atlas_CORE_Results.csv",
+        "imputes" : ["TangleTotal"],
+        "features" : ["Run", "CONDITION", "expired_age", "BIOFLUID", "sex", "PMI", "sn_depigmentation", "Braak score", "TangleTotal", "Plaque density", "PlaqueTotal"],
+        "rename" : {"CONDITION" : "Disorder", "BIOFLUID" : "Biofluid", "Braak score" : "Braak_Score", "Plaque density" : "Plaque_density"},
+        "replace" : {"from":["Parkinson's Disease", "Alzheimer's Disease", "Cerebrospinal fluid", "Healthy Control"], "to":["Parkinson", "Alzheimer", "Cerebrospinal", "Control"]},
         "output_matrix" : "data/out/gene_matrix.tsv",
         "output_features" : "data/out/features.tsv"
     },
@@ -207,21 +226,20 @@ This repository code is for the replication project for the paper: Post-mortem m
 
 •   The configuration files for the data step are stored in config/analysis-params.json. 
 
-•   We use a custom R script which uses the DESeq2 module to take the input merged gene counts and the experiment features and outputs 3 sets of files for each brain region. Each brain region will compare a disorder versus Control. This will result in a total of 9 sets of files (3 brain regions x 3 disorder pair comparisons). Each output set includes a Likelihood Ratio Test (LRT) using the full and reduced model as specified in the attributes below as well as a MA-Plot and Heatmap. The additional attributes include the property of doing parallel processing for DESeq2.
+•   We use a custom R script which uses the DESeq2 module to take the input merged gene counts and the experiment features and outputs 2 sets of files for each biofluid region. Each biofluid region will compare a disorder versus Control. This will result in a total of 4 sets of files (2 biofluid regions x 2 disorder pair comparisons). Each output set includes a Likelihood Ratio Test (LRT) using the full and reduced model as specified in the attributes below as well as a MA-Plot and Heatmap. The additional attributes include the property of doing parallel processing for DESeq2.
     
     {
-        "output_prefix" : "data/out/%brain_region%",
+        "output_prefix" : "data/out/%biofluid_region%",
         "DESeq2" : {
             "Rscript" : "/opt/conda/envs/r-bio/bin/Rscript",
-            "brain_regions" : ["AnCg", "nAcc", "DLPFC"],
-            "disorders" : ["Major Depression", "Schizophrenia", "Bipolar Disorder"],
+            "biofluid_regions" : ["Cerebrospinal", "Serum"],
+            "disorders" : ["Parkinson", "Alzheimer"],
             "control" : "Control",
-            "disorder_comparisons" : [["Major Depression", "Bipolar Disorder"], ["Major Depression", "Schizophrenia"], ["Bipolar Disorder", "Schizophrenia"]],
             "input_counts" : "data/out/pca_normalized_counts.tsv",
             "input_features" : "data/out/features.tsv",
             "source" : "src/analysis/analysis.r",
-            "full" : "Age+PMI+pH+Disorder",
-            "reduced" : "Age+PMI+pH",
+            "full" : "expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal+Disorder",
+            "reduced" : "expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal",
             "parallel" : 0
         },
         "cleanup" : 0,
@@ -229,16 +247,14 @@ This repository code is for the replication project for the paper: Post-mortem m
     }
 
 
-
-
 •   Example processing:
 
     python3 run.py analysis
 
     # ---------------------------------------------------
-    # Normalize
-    Rscript src/analysis/analysis.r data/out/AnCg/gene_matrix.tsv data/out/AnCg/features.tsv data/out/AnCg/Major_Depression_vs_Bipolar_Disorder/ Age+PMI+pH+Disorder Age+PMI+pH
-    ...
+    # Analysis
+    Cerebrospinal x Parkinson vs Control
+    Rscript src/analysis/analysis.r data/out/Cerebrospinal/Parkinson/gene_matrix.tsv data/out/Cerebrospinal/Parkinson/features.tsv data/out/Cerebrospinal/Parkinson/ full=expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal+Disorder reduced=expired_age+sex+PMI+sn_depigmentation+Braak_Score+TangleTotal+Plaque_density+PlaqueTotal charts=1 parallel=0
 
 
 ### target: visualize
@@ -247,7 +263,7 @@ This repository code is for the replication project for the paper: Post-mortem m
 
     python3 run.py visualize
 
-•   The configuration files for the data step are stored in config/visualize-params.json. The output will include 7 sets of charts: Gene Spread Variance Histogram, SRA Linear Correlation between SRA chart, MA-Plot 3x3 chart, Heat Map 3x3 chart, 3x3 Histogram, 9x9 Correlation Matrix and a Disorder Venn Diagram. Each chart type has flexible settings to control the input and layout for the charts as shown below:
+•   The configuration files for the data step are stored in config/visualize-params.json. The output will include multiple sets of charts: Gene Spread Variance Histogram, SRA Linear Correlation between SRA chart, MA-Plot 2x2 chart, Heat Map 2x2 chart, 2x2 Histogram, 4x4 Correlation Matrix and a Disorder Venn Diagram. Each chart type has flexible settings to control the input and layout for the charts as shown below:
 
     "gene_hist" : {
         "enable" : 1,
@@ -255,33 +271,37 @@ This repository code is for the replication project for the paper: Post-mortem m
         "nbins" : 100,
         "title" : "Distribution of Genes Based on Spread Metric: All vs Top Genes"
     },
+    "missing_plot" : {
+        "enable" : 1,
+        "title" : "Percentage of Missing Genes over"
+    },
     "sra_lm" : {
         "enable" : 1,
-        "sra" : ["SRR3438555", "SRR3438560"],
+        "sra" : ["SRR1568567", "SRR1568584"],
         "normalized_counts" : "data/out/normalized_counts.tsv",
         "vst_counts" : "data/out/vst_transformed_counts.tsv",
         "title" : "%sra% Regression Log(Norm) v VST counts"
     },
     "ma_plot" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "src_image" : "MAplot.png",
-        "title" : "MA Plot: Brain Region vs Disorder"
+        "title" : "MA Plot: Biofluid Region vs Disorder"
     },
     "heat_map" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "src_image" : "heatmap.png",
-        "title" : "Heat Map: Brain Region vs Disorder"
+        "title" : "Heat Map: Biofluid Region vs Disorder"
     },
     "histogram" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "title" : "Histograms Differential Gene Expression vs Control",
-        "ylim" : 1600
+        "ylim" : 55
     },
     "corrmatrix" : {
         "enable" : 1,
@@ -289,9 +309,9 @@ This repository code is for the replication project for the paper: Post-mortem m
     },
     "venn" : {
         "enable" : 1,
-        "brain_regions" : ["AnCg", "DLPFC", "nAcc"],
+        "biofluid_regions" : ["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
         "pvalue_cutoff" : 0.05,
-        "disorders" : ["Schizophrenia", "Bipolar_Disorder","Major_Depression"],
         "title" : "Venn Diagram Disorders"
     },
 
@@ -301,12 +321,7 @@ This repository code is for the replication project for the paper: Post-mortem m
     python3 run.py visualize
 
     # ---------------------------------------------------
-    # Analysis
-    mkdir data/out/AnCg/
-    mkdir data/out/AnCg/Major_Depression/
-    AnCg x Major Depression vs control
-    Rscript src/analysis/analysis.r data/out/AnCg/gene_matrix.tsv data/out/AnCg/features.tsv data/out/AnCg/Major_Depression/ full=Age+PMI+pH+Disorder reduced=Age+PMI+pH charts=1
-    ...
+    # Visualize
     # Finished
     # ---------------------------------------------------
 
@@ -383,75 +398,37 @@ python3 run.py all
 
 ### Future Work
 
-•	New pipeline step: train. This step will take the analyzed data and train a model to predict given a patients RNA sequences which of the 4 classifications they are (schizophrenia, bipolar disorder, major depressive disorder, or none) using a subset of the original data as training data and validation data.
-
-•	New pipeline step: predict. This step will use the model to predict the classification for a given RNA sequences on the test data and reporting the classification errors
+•	New pipeline step: predict. This step will use the model to predict the classification for a given miRNA sequences on the test data and reporting the classification errors
 
 
 
 ### Major Change History
 
 
-Date:  12/1/2020
+Date:  12/27/2020
 
 Work completed:
 
-- Update README
+- Ported normalize, analysis and visualize targets to use new SRA
 
-- Update requirements pip
-
-Date:  12/1/2020
-
-Work completed:
-
-- Refactored of visualize, report
-
-- Bug fixes
+- Updated documentation
 
 
-Date:  11/25/2020
+Date:  12/26/2020
 
 Work completed:
 
-- Refactored of analysis
-
-- Bug fixes
+- Ported merge target to use new SRA
 
 
-Date:  11/18/2020
+Date:  12/24/2020
 
 Work completed:
 
-- Refactored the data pipeline 
+- Created repo, initial version from the DSC180A Genetics project
 
-- Added kallisto to data target step
+- Added new download step and modified data target to use new SRA
 
-- New tagets added: analysis
-
-
-Date:  11/06/2020
-
-Work completed:
-
-- Refactored the data pipeline and targets (includes cutadapt, STAR, samtools merge, R DESeq2, picard)
-
-- New tagets added: merge, normalize, all
-
-- The data target now will output gene count files 
-
-- The merge target will merge gene count and/or bam files
-
-- The qc target now will also support picard for bam files, and for fastq files it will iterate all files in a directory to generate multiple reports
-
-- A stub is added for the normalize pipeline step. This will in the future exectue an R script.
-
-
-
-Date:  10/24/2020
-
-Work completed:
-
-- Created basic pipeline to copy and clean the data folders
 
 
 
@@ -459,10 +436,11 @@ Work completed:
 ### Responsibilities
 
 
-* Saroop Samra, refactored the data pipeline step. It now is comprehensive and includes the process, align, merge and normalize steps. This required updating the run.py, defining a new JSON schema, updating the etl.py. The etl.py source file has been  refactored so even though it is nearly 300 lines of code, it is documented and refactored into 7  functions to make it easier to comprehend and maintain. Saroop also added an "all" pipeline step that runs all the individual pipeline steps, one after another. Saroop also implemented the merge pipeline step which iterates a directory for the gene count TSV files and uses pandas to merge them into one master gene count file as well as a experiment table that associates the sample labels with the patient features. (as well as optionally merging bam files). The qc pipeline step now also supports picard for doing quality checks on bam files. Saroop also added a patient sample database JSON file and refactored the data configuration JSON to include a reference to the sample database as well as a filter feature. Recently Saroop worked on the normalize and merge steps to take into account filtering of genes. Additionaly, Saroop worked on the analysis processing using DESeq2 which processsed the 9 data sets (3 brain regions x 3 disorders). Finally, Saroop worked on the visualization step to create the different charts.
+* Saroop Samra, developed the original codebase based on the DSC180A genetics replication project. Saroop ported the code to support the new miRNA dataset including adding a new download step in the data target. Saroop worked on modifying the code and configuration files for the merge, normalize, analysis and visualize targets to process and generate the visualizations from the DSC180A project. 
 
+* Justin Lu
 
-* 
+* Xuanyu Wu
 
 
 
