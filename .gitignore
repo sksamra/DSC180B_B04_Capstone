@@ -51,3 +51,6 @@ __pycache__
 
 # Ignore symlink 
 /third_party
+
+# log files
+log.txt

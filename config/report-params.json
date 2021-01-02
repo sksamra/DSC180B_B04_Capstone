@@ -1,5 +1,5 @@
 {
-    "tool": "jupyter",
+    "tool": "/Users/saroop2/opt/anaconda3/bin/jupyter",
     "args": "nbconvert --no-input --to html --output report.html notebooks/report.ipynb",
     "verbose" : 1
 }
