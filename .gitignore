@@ -54,3 +54,6 @@ __pycache__
 
 # log files
 log.txt
+
+# report
+report.html
