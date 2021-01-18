@@ -16,7 +16,8 @@
         "rename" : {"CONDITION" : "Disorder", "BIOFLUID" : "Biofluid", "Braak score" : "Braak_Score", "Plaque density" : "Plaque_density"},
         "replace" : {"from":["Parkinson's Disease", "Alzheimer's Disease", "Cerebrospinal fluid", "Healthy Control"], "to":["Parkinson", "Alzheimer", "Cerebrospinal", "Control"]},
         "output_matrix" : "data/out/gene_matrix.tsv",
-        "output_features" : "data/out/features.tsv"
+        "output_features" : "data/out/features.tsv",
+        "thresh" : 310
     },
     "bam" : {
     	"enable" : 0,
