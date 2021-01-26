@@ -184,6 +184,7 @@ def main(targets):
         histogram = visualize_cfg["histogram"]
         corrmatrix = visualize_cfg["corrmatrix"]
         venn = visualize_cfg["venn"]
+        volcano = visualize_cfg["volcano"]
 
         # Limit visualization for test
         if 'test' in targets:
@@ -191,7 +192,7 @@ def main(targets):
             venn["pvalue_cutoff"] = 0.5
             
           
-        data = visualize.process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, visualize_cfg["verbose"])
+        data = visualize.process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, visualize_cfg["verbose"])
         success = True
 
 

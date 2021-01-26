@@ -267,8 +267,44 @@ def process_plot_missing(out_dir, missing):
 	plt.savefig(out_dir + "/missing.png")
 	return
 
-    
-def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, verbose):
+
+def process_volcano_plot(out_dir, volcano):
+
+	pcutoff = volcano["pcutoff"]
+	biofluids = volcano["biofluids"] 
+	disorders = volcano["disorders"]
+	title = volcano["title"]
+	pcutoff = -np.log10(pcutoff)
+	fig, axes = plt.subplots(nrows=2,ncols=2, figsize=(10, 8))
+	for ax, col in zip(axes[0], biofluids):
+		ax.set_title(col, color='purple')
+	color_dict = dict({'Down':'blue', 'Up':'red', 'Not Significant': 'gray'})
+
+	for i in range(2):
+		for j in range(2):
+			disorder = disorders[i]
+			biofluid = biofluids[j]
+			legend = False
+			if i==0 and j==1:
+				legend = 'full'
+			df = pd.read_csv(out_dir + "/" + biofluid + "/" + disorder + "/lrt.tsv", sep="\t")
+			df["-log_pvalue"] = -np.log10(df["pvalue"])
+			df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))
+			sns.scatterplot(x='log2FoldChange', y='-log_pvalue', data=df, hue='Type',legend=legend, ax = axes[i,j], palette=color_dict)
+			axes[i, j].axhline(pcutoff,color='black',ls='--')
+
+
+	for ax, row in zip(axes[:,0], disorders):
+		ax.set_ylabel(row, rotation=90, size='large', color='purple')
+
+	plt.suptitle(title, size=20)
+	out_image = out_dir + "/volcano.png"
+	plt.savefig(out_image)
+	return
+
+
+
+def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, verbose):
 		
 	if verbose:
 		logging.info("# ---------------------------------------------------")
@@ -298,6 +334,9 @@ def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, h
 	# Process Corr Matrix Plot
 	if venn["enable"] == 1:
 		process_venn(out_dir, venn)
+
+	if volcano["enable"] == 1:
+		process_volcano_plot(out_dir, volcano)
 
 	if verbose:
 		logging.info("# Finished")

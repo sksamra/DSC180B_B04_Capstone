@@ -49,6 +49,13 @@
         "pvalue_cutoff" : 0.05,
         "title" : "Venn Diagram Disorders"
     },
+    "volcano" : {
+        "enable" : 1,
+        "pcutoff": 0.05,
+        "biofluids" :["Cerebrospinal", "Serum"],
+        "disorders" : ["Parkinson", "Alzheimer"],
+        "title" : "Volcano Plots Biofluid vs Disorder"
+    },
     "verbose": 1
 }
 
