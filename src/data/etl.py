@@ -568,7 +568,13 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
     if verbose == 1:
         print("Before Drop Nan size=", merged_count_df.shape[0])
         merged_count_df.to_csv("data/out/gene_matrix_full.tsv", sep='\t')
+    
+    # filter out miRNA
+    #merged_count_df = merged_count_df[merged_count_df.index.str.find("miRNA") != -1]
+    
+    # Drop NA's and Fill
     merged_count_df = merged_count_df.dropna(thresh=count["thresh"]).fillna(1)
+
     if verbose == 1:
         print("After Drop Nan size=", merged_count_df.shape[0])
     

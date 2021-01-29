@@ -17,7 +17,7 @@
         "replace" : {"from":["Parkinson's Disease", "Alzheimer's Disease", "Cerebrospinal fluid", "Healthy Control"], "to":["Parkinson", "Alzheimer", "Cerebrospinal", "Control"]},
         "output_matrix" : "data/out/gene_matrix.tsv",
         "output_features" : "data/out/features.tsv",
-        "thresh" : 310
+        "thresh" : 20
     },
     "bam" : {
     	"enable" : 0,

@@ -38,7 +38,7 @@
         "enable" : 1,
         "tool" : "curl",
         "arguments" : "-L -R",
-        "read_counts_file" : "readCounts_gencode_sense.txt"
+        "read_counts_file" : "EXOGENOUS_miRNA/readCounts_miRNAmature_sense.txt"
     },
     "cleanup" : 0,
     "verbose": 1

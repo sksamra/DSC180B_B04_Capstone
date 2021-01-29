@@ -46,12 +46,12 @@
         "enable" : 1,
         "biofluid_regions" : ["Cerebrospinal", "Serum"],
         "disorders" : ["Parkinson", "Alzheimer"],
-        "pvalue_cutoff" : 0.05,
+        "pvalue_cutoff" : 0.30,
         "title" : "Venn Diagram Disorders"
     },
     "volcano" : {
         "enable" : 1,
-        "pcutoff": 0.05,
+        "pcutoff": 0.30,
         "biofluids" :["Cerebrospinal", "Serum"],
         "disorders" : ["Parkinson", "Alzheimer"],
         "title" : "Volcano Plots Biofluid vs Disorder"
