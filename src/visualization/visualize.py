@@ -106,12 +106,13 @@ def process_corrmatrix(out_dir, corrmatrix):
 
 	c = np.ones((N, M))
 
-	fig, ax = plt.subplots(figsize=(8,8))
+	fig, ax = plt.subplots(figsize=(11,8))
 
 	R = s/s.max()/2
 	x, y = np.meshgrid(np.arange(M), np.arange(N))
 	circles = [plt.Circle((j,i), radius=r) for r, j, i in zip(R.flat, x.flat, y.flat)]
-	col = PatchCollection(circles, array=c.flatten(), cmap="coolwarm")
+	col = PatchCollection(circles)
+	col.set(array=s.flatten(), cmap = 'coolwarm')
 	ax.add_collection(col)
 
 	ax.set(xticks=np.arange(M), yticks=np.arange(N),
@@ -121,10 +122,10 @@ def process_corrmatrix(out_dir, corrmatrix):
 	ax.grid(which='minor')
 	ax.text(0,-0.9, "Cerebrospinal", size=20, color='red')
 	ax.text(2,-0.9, "Serum", size=20, color='green')
-	ax.text(3.6,2, "Cerebrospinal", size=20, rotation=90, color='red')
-	ax.text(3.6,0, "Serum", size=20, rotation=90, color='green')
-
-	#fig.colorbar(col)
+	ax.text(3.55,2, "Cerebrospinal", size=20, rotation=90, color='red')
+	ax.text(3.55,0, "Serum", size=20, rotation=90, color='green')
+    
+	fig.colorbar(col)
 	plt.suptitle(corrmatrix["title"])
 	plt.savefig(out_dir + "/corrmatrix.png" )
 	return
