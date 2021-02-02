@@ -410,7 +410,7 @@ Date:  2/2/2021
 Work completed:
 
 - Created new visualization, Volcano Plot, wrote the code and implemented it into our pipeline in the visualize step 
-- Updated the code pipeline to make the correlation heatmap more meaningful by adding color
+- Updated the code pipeline to make the correlation matrix more meaningful by adding color
 - Finished descriptions for EDA plots
 
 
@@ -440,7 +440,7 @@ Work completed:
 
 * Saroop Samra, developed the original codebase based on the DSC180A genetics replication project. Saroop ported the code to support the new miRNA dataset including adding a new download step in the data target. She worked on modifying the code and configuration files for the merge, normalize, analysis and visualize targets to process and generate the visualizations from the DSC180A project. She got the new Volcano Plot to work for our dataset and wrote basic descriptions for the visualizations including what significant patterns exists (MA plot, heatmap, histogram, venn diagram, correlation matrix).
 
-* Justin Lu, wrote out background information/introduction sections of the report. Justin did the data quality control check with FastQC (focused on the FastQC report outputs that we acquired instead of actually running FastQC since we still do not have access to the raw .fastq data), wrote in descriptions for visualizations and some of the EDA in our final report notebook. He updated the code pipeline with colored correlation heatmap.
+* Justin Lu, wrote out background information/introduction sections of the report. Justin did the data quality control check with FastQC (focused on the FastQC report outputs that we acquired instead of actually running FastQC since we still do not have access to the raw .fastq data), wrote in descriptions for visualizations and some of the EDA in our final report notebook. He updated the code pipeline with colored correlation matrix.
 
 * Xuanyu Wu, generated around 20 EDA plots for features that describe our merged dataset (incl. box plots, histograms, bar plots, etc) Xuanyu created EDA plots to explore the missingness of the gene count matrix and the basic correlation of each sequence with the numerical features we have selected. She also finished the descriptions for EDA plots and analysis.
 
