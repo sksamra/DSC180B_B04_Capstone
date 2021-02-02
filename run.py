@@ -26,7 +26,7 @@ import qc
 def main(targets):
     '''
     Runs the main project pipeline logic, given the targets.
-    targets must contain: 'data', 'analysis', 'model'. 
+    targets must contain: 'data', 'analysis', 'model'.  
     
     `main` runs the targets in order of data=>analysis=>model.
     '''
