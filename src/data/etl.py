@@ -368,7 +368,7 @@ def process_data(raw_dir, tmp_dir, out_dir, sra_runs, process, aligncount, clean
                 fp.write("ReferenceID\tuniqueReadCount\ttotalReadCount\tmultimapAdjustedReadCount\tmultimapAdjustedBarcodeCount\n")
                 # Output a bunch of random genes
                 for gene_num in range(1, 31):
-                    fp.write("NM_" + str(gene_num) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\n")
+                    fp.write("tst-mir_" + str(gene_num) + ":test\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\t" + str(randint(0, 1000)) + "\n")
                 fp.close()
 
 
@@ -572,6 +572,11 @@ def process_merge_gene_counts(count, input_dir, cleanup, verbose):
     # filter out miRNA
     #merged_count_df = merged_count_df[merged_count_df.index.str.find("miRNA") != -1]
     
+    # code to combine miRNAs
+    merged_count_df["miRNAs"] = merged_count_df.index.str.split(':').str[0].str[4:].str.lower().str.strip("-")
+    merged_count_df = merged_count_df[merged_count_df["miRNAs"].str.startswith("mir")]
+    merged_count_df = merged_count_df.groupby("miRNAs").sum()
+    merged_count_df = merged_count_df.replace({0:np.nan})
     # Drop NA's and Fill
     merged_count_df = merged_count_df.dropna(thresh=count["thresh"]).fillna(1)
 
