@@ -288,11 +288,15 @@ def process_volcano_plot(out_dir, volcano):
 			legend = False
 			if i==0 and j==1:
 				legend = 'full'
-			df = pd.read_csv(out_dir + "/" + biofluid + "/" + disorder + "/lrt.tsv", sep="\t")
+			df = pd.read_csv(out_dir + "/" + biofluid + "/" + disorder + "/lrt.tsv", sep="\t", index_col=0)
 			df["-log_pvalue"] = -np.log10(df["pvalue"])
 			df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))
 			sns.scatterplot(x='log2FoldChange', y='-log_pvalue', data=df, hue='Type',legend=legend, ax = axes[i,j], palette=color_dict)
 			axes[i, j].axhline(pcutoff,color='black',ls='--')
+			df = df[df['Type']!='Not Significant']
+			df = df.sort_values('-log_pvalue', ascending=False)
+			df = df[['Type', 'log2FoldChange', '-log_pvalue']]
+			df.to_csv(out_dir + "/" + biofluid + "/" + disorder + "/updown_miRNAs.csv")
 
 
 	for ax, row in zip(axes[:,0], disorders):
