@@ -293,6 +293,7 @@ def process_volcano_plot(out_dir, volcano):
 			df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))
 			sns.scatterplot(x='log2FoldChange', y='-log_pvalue', data=df, hue='Type',legend=legend, ax = axes[i,j], palette=color_dict)
 			axes[i, j].axhline(pcutoff,color='black',ls='--')
+			
 			df = df[df['Type']!='Not Significant']
 			df = df.sort_values('-log_pvalue', ascending=False)
 			df = df[['Type', 'log2FoldChange', '-log_pvalue']]
@@ -305,9 +306,45 @@ def process_volcano_plot(out_dir, volcano):
 	plt.suptitle(title, size=20)
 	out_image = out_dir + "/volcano.png"
 	plt.savefig(out_image)
+
+	process_volcano_plot_details(out_dir, volcano)
 	return
 
+def process_volcano_plot_details(out_dir, volcano):
 
+	pcutoff = volcano["pcutoff"]
+	biofluids = volcano["biofluids"] 
+	disorders = volcano["disorders"]
+	title = volcano["title"]
+	pcutoff = -np.log10(pcutoff)
+	fig, ax = plt.subplots(figsize=(10,8))
+	
+	color_dict = dict({'Down':'blue', 'Up':'red', 'Not Significant': 'gray'})
+
+	# Just do one region
+	i = 1
+	j = 1
+	disorder = disorders[i]
+	biofluid = biofluids[j]
+	legend = True
+	df = pd.read_csv(out_dir + "/" + biofluid + "/" + disorder + "/lrt.tsv", sep="\t", index_col=0)
+	df["-log_pvalue"] = -np.log10(df["pvalue"])
+	df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))
+	sns.scatterplot(x='log2FoldChange', y='-log_pvalue', data=df, hue='Type',legend=legend, palette=color_dict)
+	plt.axhline(pcutoff,color='black',ls='--')
+	for index, row in df.iterrows():
+		# skip ones that are too close together
+		if index=='mir-22' or index=='mir-186':
+			continue
+		if row["Type"]=='Down':
+			plt.text(x=row['log2FoldChange']+0.02, y=row['-log_pvalue']+0.01, s=index, fontsize=10)
+		elif row["Type"]=='Up':
+			plt.text(x=row['log2FoldChange']+0.02, y=row['-log_pvalue']+0.01, s=index, fontsize=10)
+
+	plt.suptitle(disorder + " " + biofluid + " Volcano Plot " , size=20)
+	out_image = out_dir + "/volcano_details.png"
+	plt.savefig(out_image)
+	return
 
 def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, verbose):
 		
