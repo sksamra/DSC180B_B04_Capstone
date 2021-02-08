@@ -306,8 +306,8 @@ def process_volcano_plot(out_dir, volcano):
 	plt.suptitle(title, size=20)
 	out_image = out_dir + "/volcano.png"
 	plt.savefig(out_image)
-
-	process_volcano_plot_details(out_dir, volcano)
+	if volcano["show_details"]==1:
+		process_volcano_plot_details(out_dir, volcano)
 	return
 
 def process_volcano_plot_details(out_dir, volcano):
@@ -326,7 +326,7 @@ def process_volcano_plot_details(out_dir, volcano):
 	j = 1
 	disorder = disorders[i]
 	biofluid = biofluids[j]
-	legend = True
+	legend = 'full'
 	df = pd.read_csv(out_dir + "/" + biofluid + "/" + disorder + "/lrt.tsv", sep="\t", index_col=0)
 	df["-log_pvalue"] = -np.log10(df["pvalue"])
 	df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))

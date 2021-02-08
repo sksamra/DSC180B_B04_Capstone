@@ -54,7 +54,8 @@
         "pcutoff": 0.30,
         "biofluids" :["Cerebrospinal", "Serum"],
         "disorders" : ["Parkinson", "Alzheimer"],
-        "title" : "Volcano Plots Biofluid vs Disorder"
+        "title" : "Volcano Plots Biofluid vs Disorder",
+        "show_details" : 1
     },
     "verbose": 1
 }
