@@ -222,7 +222,7 @@ def process_venn(out_dir, venn):
 	b_only = b - intersection
 
 
-	fig = venn2_unweighted(subsets = (len(a - (a&b)), len((a&b)), len(b - (a&b))), set_labels = tuple(disorders), alpha = 0.5)
+	fig = venn2_unweighted(subsets = (len(a - (a&b)), len(b - (a&b)), len((a&b))), set_labels = tuple(disorders), alpha = 0.5)
 	plt.text(x=0.05,y=-0.2,s= "\n".join(list(intersection)),color='black', bbox=dict(facecolor='orange', alpha=0.5))
 	plt.text(x=-0.84,y=-0.25,s= "\n".join(list(a_only)),color='black', bbox=dict(facecolor='red', alpha=0.5))
 	plt.text(x=0.66,y=-0.2,s= "\n".join(list(b_only)),color='black', bbox=dict(facecolor='green', alpha=0.5))
