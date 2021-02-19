@@ -176,6 +176,7 @@ def main(targets):
         with open('config/visualize-params.json') as fh:
             visualize_cfg = json.load(fh)
         out_dir = visualize_cfg["out_dir"]
+        plot_path = visualize_cfg["plot_path"]
         gene_hist = visualize_cfg["gene_hist"]
         missing_plot = visualize_cfg["missing_plot"]
         sra_lm = visualize_cfg["sra_lm"]
@@ -185,6 +186,9 @@ def main(targets):
         corrmatrix = visualize_cfg["corrmatrix"]
         venn = visualize_cfg["venn"]
         volcano = visualize_cfg["volcano"]
+        box_all = visualize_cfg["box_all"]
+        heatmap_all = visualize_cfg["heatmap_all"]
+        reg_corr = visualize_cfg["reg_corr"]
 
         # Limit visualization for test
         if 'test' in targets:
@@ -192,7 +196,7 @@ def main(targets):
             venn["pvalue_cutoff"] = 0.5
             
           
-        data = visualize.process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, visualize_cfg["verbose"])
+        data = visualize.process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, heatmap_all, reg_corr, visualize_cfg["verbose"])
         success = True
 
 

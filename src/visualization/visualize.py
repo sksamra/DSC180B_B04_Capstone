@@ -18,7 +18,7 @@ import logging
 
 
 def r2(x, y):
-    return round(stats.pearsonr(x, y)[0] ** 2, 2)
+	return round(stats.pearsonr(x, y)[0] ** 2, 2)
 
 def lm_corr_plot(x, y, df, title, out_image):
 	# cite: https://stackoverflow.com/questions/60358228/how-to-set-title-on-seaborn-jointplot
@@ -36,7 +36,7 @@ def pvalue_histograms(ylim, biofluid_regions, disorders, title, out_image):
 	fig, axes = plt.subplots(nrows=2,ncols=2, figsize=(10, 8))
 
 	for ax, col in zip(axes[0], biofluid_regions):
-	    ax.set_title(col)
+		ax.set_title(col)
 
 	fig.suptitle(title)
 	#fig.subplots_adjust(top=0.9) # Reduce plot to make room
@@ -58,7 +58,7 @@ def pvalue_histograms(ylim, biofluid_regions, disorders, title, out_image):
 		col+=1
 		
 	for ax, row in zip(axes[:,0], disorders):
-	    ax.set_ylabel(row, rotation=90, size='large')
+		ax.set_ylabel(row, rotation=90, size='large')
 
 	plt.savefig(out_image)
 	
@@ -85,24 +85,24 @@ def process_corrmatrix(out_dir, corrmatrix):
 	s = np.zeros((N,M))
 
 	for y in range(N):
-	    for x in range(M):
-	    	lrt1 = "data/out/"+biofluid_regions_x[x]+"/"+disorders_x[x]+"/lrt.tsv"
-	    	lrt2 = "data/out/"+biofluid_regions_y[y]+"/"+disorders_y[y]+"/lrt.tsv"
-	    	# Make sure ltr1 exists otherwise zero correlation
-	    	if not os.path.exists(lrt1):
-	    		s[y][x] = 0.5
-	    		continue
-	    	# Make sure ltr2 exists otherwise zero correlation
-	    	if not os.path.exists(lrt2):
-	    		s[y][x] = 0.5
-	    		continue
-	    	if lrt1 != lrt2:
-	    	    df_x = pd.read_csv(lrt1, sep='\t', index_col=0)
-	    	    df_y = pd.read_csv(lrt2, sep='\t', index_col=0)
-	    	    corr = np.abs(df_x["log2FoldChange"].corr(df_y["log2FoldChange"]))
-	    	    s[y][x] = corr
-	    	else:
-	    		s[y][x] = 0.0 #Dont set diagnols
+		for x in range(M):
+			lrt1 = "data/out/"+biofluid_regions_x[x]+"/"+disorders_x[x]+"/lrt.tsv"
+			lrt2 = "data/out/"+biofluid_regions_y[y]+"/"+disorders_y[y]+"/lrt.tsv"
+			# Make sure ltr1 exists otherwise zero correlation
+			if not os.path.exists(lrt1):
+				s[y][x] = 0.5
+				continue
+			# Make sure ltr2 exists otherwise zero correlation
+			if not os.path.exists(lrt2):
+				s[y][x] = 0.5
+				continue
+			if lrt1 != lrt2:
+				df_x = pd.read_csv(lrt1, sep='\t', index_col=0)
+				df_y = pd.read_csv(lrt2, sep='\t', index_col=0)
+				corr = np.abs(df_x["log2FoldChange"].corr(df_y["log2FoldChange"]))
+				s[y][x] = corr
+			else:
+				s[y][x] = 0.0 #Dont set diagnols
 
 	c = np.ones((N, M))
 
@@ -116,7 +116,7 @@ def process_corrmatrix(out_dir, corrmatrix):
 	ax.add_collection(col)
 
 	ax.set(xticks=np.arange(M), yticks=np.arange(N),
-	       xticklabels=xlabels, yticklabels=ylabels)
+		   xticklabels=xlabels, yticklabels=ylabels)
 	ax.set_xticks(np.arange(M+1)-0.5, minor=True)
 	ax.set_yticks(np.arange(N+1)-0.5, minor=True)
 	ax.grid(which='minor')
@@ -124,7 +124,7 @@ def process_corrmatrix(out_dir, corrmatrix):
 	ax.text(2,-0.9, "Serum", size=20, color='green')
 	ax.text(3.55,2, "Cerebrospinal", size=20, rotation=90, color='red')
 	ax.text(3.55,0, "Serum", size=20, rotation=90, color='green')
-    
+	
 	fig.colorbar(col)
 	plt.suptitle(corrmatrix["title"])
 	plt.savefig(out_dir + "/corrmatrix.png" )
@@ -139,22 +139,22 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 	fig.subplots_adjust(top=0.88)
 	row = 0
 	for biofluid_region in biofluid_regions:
-	    col = 0
-	    for disorder in disorders:
-	    	filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
-	    	if os.path.exists(filename):
-	    		im = mpimg.imread(filename)
-	    		axarr[row,col].imshow(im, interpolation='bilinear')
-	    	if row == 0 and col == 0:
-	    		axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
-	    	if row == 0 and col == 1:
-	    		axarr[row,col].set_title("Serum", size=20, color='blue')
-	    	if row == 0 and col == 0:
-	    		axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
-	    	if row == 1 and col == 0:
-	    		axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
-	    	col += 1
-	    row += 1
+		col = 0
+		for disorder in disorders:
+			filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
+			if os.path.exists(filename):
+				im = mpimg.imread(filename)
+				axarr[row,col].imshow(im, interpolation='bilinear')
+			if row == 0 and col == 0:
+				axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
+			if row == 0 and col == 1:
+				axarr[row,col].set_title("Serum", size=20, color='blue')
+			if row == 0 and col == 0:
+				axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
+			if row == 1 and col == 0:
+				axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
+			col += 1
+		row += 1
 
 	plt.savefig(out_image)
 	return
@@ -195,20 +195,20 @@ def process_venn(out_dir, venn):
 	disorders = venn["disorders"]
 	genes = {}
 	for biofluid_region in biofluid_regions:
-	    col = 0
-	    for disorder in disorders:
-	    	filename = "data/out/"+biofluid_region+"/"+disorder+"/lrt.tsv"
-	    	if os.path.exists(filename):
-		        df = pd.read_csv(filename, sep='\t', index_col=0)
-		        # Filter genes with pvalue less than cutoff
-		        df = df[df["pvalue"] < pvalue_cutoff]
-		        # Add to list
-		        if disorder in genes:
-		        	genes[disorder] = genes[disorder] + df.index.tolist()
-		        else:
-		        	genes[disorder] = df.index.tolist()
-	    	else:
-	    		genes[disorder] = []
+		col = 0
+		for disorder in disorders:
+			filename = "data/out/"+biofluid_region+"/"+disorder+"/lrt.tsv"
+			if os.path.exists(filename):
+				df = pd.read_csv(filename, sep='\t', index_col=0)
+				# Filter genes with pvalue less than cutoff
+				df = df[df["pvalue"] < pvalue_cutoff]
+				# Add to list
+				if disorder in genes:
+					genes[disorder] = genes[disorder] + df.index.tolist()
+				else:
+					genes[disorder] = df.index.tolist()
+			else:
+				genes[disorder] = []
 
 	# Find unique genes per disorder
 	for disorder in disorders:
@@ -354,7 +354,144 @@ def process_volcano_plot_details(out_dir, volcano):
 	plt.savefig(out_image)
 	return
 
-def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, verbose):
+def get_cond_tbl(gm, sra, selected_ft):
+	# clean up the index
+	gm.index = gm.index.str.slice(0,30)
+	gm_reind = gm.T
+	selected_ft = sra[selected_ft]
+	# clean up selected ft
+	selected_ft = selected_ft.replace({'sn_depigmentation':{'none':0, 'nan':0, 'mild':1, 'moderate':2, 'severe':3},
+									   'Braak score':{'0':0, 'I':1, 'II':2, 'III':3, 'IV':4, 'V':5, 
+													  'VI':6}}).set_index('Run')
+	alz_ft = selected_ft[selected_ft.CONDITION=='Alzheimer\'s Disease'].drop('CONDITION', axis=1)
+	park_ft = selected_ft[selected_ft.CONDITION=='Parkinson\'s Disease'].drop('CONDITION', axis=1)
+
+	alz_tbl = alz_ft.merge(gm_reind, left_index=True, right_index=True, how='inner')
+	park_tbl = park_ft.merge(gm_reind, left_index=True, right_index=True, how='inner')
+	return alz_tbl, park_tbl, alz_ft, park_ft
+
+def process_all_box(plot_path, box_all):
+	gm = pd.read_csv(box_all['gm_path'], sep='\t', index_col=0)
+	sra = pd.read_csv(box_all['sra_path'])
+	alz_tbl, park_tbl, _, _ = get_cond_tbl(gm, sra, box_all['selected_ft'])
+	
+	num_fts = box_all['num_fts']
+	alz_gm = alz_tbl.iloc[:, num_fts:]
+	park_gm = park_tbl.iloc[:, num_fts:]
+	fig, axes= plt.subplots(nrows=2, ncols=1, figsize=(240, 16))
+	alz_gm.boxplot(ax = axes.flatten()[0])
+	axes.flatten()[0].set_xticklabels(alz_gm.columns, rotation=45)
+	park_gm.boxplot(ax = axes.flatten()[1])
+	axes.flatten()[1].set_xticklabels(park_gm.columns, rotation=45)
+	rows = ['Alzheimer\'s Disease','Parkinson\'s Disease']
+	for ax, row in zip(axes, rows):
+		ax.set_ylabel(row, rotation=90, size='large')
+	fig.tight_layout()
+	fig.suptitle('Distribution of each sequence in AD and PD patients ')
+	fig.subplots_adjust(top=0.9)
+	fig.savefig(os.path.join(plot_path, box_all['out_name']))
+	
+def get_corr_df(num_fts, fts_names, tbl):
+	corr_df = pd.DataFrame()
+	for i in range(num_fts):
+		corr = tbl[tbl.columns[num_fts:]].apply(lambda x: x.corr(tbl.iloc[:,i]))
+		corr_df[fts_names[i]] = corr
+	return corr_df
+
+def process_all_heatmap(plot_path, heatmap_all):
+	gm = pd.read_csv(heatmap_all['gm_path'], sep='\t', index_col=0)
+	sra = pd.read_csv(heatmap_all['sra_path'])
+	alz_tbl, park_tbl, _, _ = get_cond_tbl(gm, sra, heatmap_all['selected_ft'])
+	
+	tbl_arr = [alz_tbl, park_tbl]
+	cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
+	fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(24, 240))
+	ind = 0
+	for tbl in tbl_arr:
+		corr_df = get_corr_df(num_fts, fts_names, tbl)
+		sn.heatmap(corr_df, ax = axes.flatten()[ind])
+		axes.flatten()[ind].set_xticklabels(fts_names, rotation=45)
+		ind = ind+1
+
+	for ax, col in zip(axes, cols):
+		ax.set_ylabel(col, rotation=90, size='large')
+	fig.tight_layout()
+
+	fig.savefig(os.path.join(plot_path, heatmap_all['out_name']))
+
+def get_up_down_martix(up_down_path, gm):
+	reg_seq = pd.read_csv(up_down_path)
+	reg_seq  = reg_seq.set_index('Unnamed: 0')
+	merged_reg = reg_seq.merge(gm, left_index=True, right_index=True)
+	up_reg = merged_reg[merged_reg['Type']=='Up'].iloc[:,3:].T
+	down_reg = merged_reg[merged_reg['Type']=='Down'].iloc[:,3:].T
+	return up_reg, down_reg
+
+def get_seq_overlap():
+	biofluid = ['Cerebrospinal', 'Serum']
+	condition = ['Alzheimer', 'Parkinson']
+	up_down_path = '../data/out/%s/%s/updown_miRNAs.csv'
+
+	up_overlap = {}
+	down_overlap = {}
+	all_up = {}
+	all_down = {}
+	for i in biofluid:
+		up_seq = {}
+		down_seq = {}
+		for j in condition:
+			#up_reg, down_reg = get_up_down_martix(up_down_path%(i, j), gm)
+			correct_path = up_down_path.replace("%s/%s", i + "/" + j)
+			up_reg, down_reg = get_up_down_martix(correct_path, gm)
+			up_seq[j] = set(up_reg.columns)
+			down_seq[j] = set(down_reg.columns)
+		up_overlap[i] = set.intersection(up_seq[condition[0]], up_seq[condition[1]])
+		down_overlap[i] = set.intersection(down_seq[condition[0]], down_seq[condition[1]])
+		all_up[i] = up_seq
+		all_down[i] = down_seq
+	return all_up, all_down, up_overlap, down_overlap
+
+def process_regulated_corr(out_dir, reg_corr):
+	gm = pd.read_csv(reg_corr['gm_path'], sep='\t', index_col=0)
+	sra = pd.read_csv(reg_corr['sra_path'])
+	_, _, alz_ft, park_ft = get_cond_tbl(gm, sra, reg_corr['selected_ft'])
+	all_up, all_down, up_overlap, down_overlap = get_seq_overlap()
+	reg_li = [all_up, all_down, up_overlap]
+	reg_name = ['up-regulated', 'down-regulated', 'overlapping']
+	ind = -1
+	for reg in reg_li:
+		ind = ind +1
+		for i in biofluid:
+			alz_tbl = alz_ft.merge(gm_reind[reg[i]['Alzheimer']], left_index=True, right_index=True, how='inner')
+			park_tbl = park_ft.merge(gm_reind[reg[i]['Parkinson']], left_index=True, right_index=True, how='inner')
+			fts_names = selected_ft.drop('CONDITION', axis=1).columns
+			tbl_arr = [alz_tbl, park_tbl]
+			cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
+			if i=='Cerebrospinal' and reg == all_down:
+				corr_df = get_corr_df(num_fts, fts_names, alz_tbl)
+				fig = sn.heatmap(corr_df)
+				fig.set_xticklabels(fts_names)
+				fig.set_ylabel('Alzheimer\'s Disease')
+				plt.title('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[ind],i))
+			else: 
+				fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
+				ind = 0
+				for tbl in tbl_arr:
+					corr_df = get_corr_df(num_fts, fts_names, tbl)
+					sn.heatmap(corr_df, ax = axes.flatten()[ind])
+					axes.flatten()[ind].set_xticklabels(fts_names)#, rotation=30)
+					ind = ind+1
+				for ax, col in zip(axes, cols):
+					ax.set_ylabel(col, rotation=90, size='large')
+				fig.tight_layout()
+				fig.subplots_adjust(top=0.9)
+				fig.suptitle('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[ind],i))
+			fig.savefig(os.path.join(plot_path, '%s_corr_%s.png'%(reg_name[ind],i)))
+
+
+					  
+
+def process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, heatmap_all, reg_corr, verbose):
 		
 	if verbose:
 		logging.info("# ---------------------------------------------------")
@@ -387,6 +524,15 @@ def process_plots(out_dir, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, h
 
 	if volcano["enable"] == 1:
 		process_volcano_plot(out_dir, volcano)
+		
+	if box_all["enable"] == 1:
+		process_all_box(plot_path, box_all)
+	
+	if heatmap_all["enable"] == 1:
+		process_all_heatmap(plot_path, heatmap_all)
+	
+	if reg_corr["enable"] == 1:
+		process_regulated_corr(out_dir, reg_corr)
 
 	if verbose:
 		logging.info("# Finished")
