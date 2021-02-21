@@ -59,7 +59,7 @@ def pvalue_histograms(ylim, biofluid_regions, disorders, title, out_image):
 				# remove high pvalues?
 				#df = df[df["pvalue"]<0.8]
 				df["pvalue"].plot.hist(ax = axes[row,col], color=colors[col], bins=20, ylim=(0,ylim))
-				axes[row,col].text(axes[row,col].get_xlim()[0], axes[row,col].get_ylim()[1]+offset[k], labels[k], c='red', fontsize=20, fontweight='bold', alpha=0.5)
+				axes[row,col].text(axes[row,col].get_xlim()[0], axes[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=16, fontweight='bold', alpha=0.5)
 
 			row+=1
 			k+= 1
@@ -164,7 +164,7 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 	    		axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
 	    	if row == 1 and col == 0:
 	    		axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
-	    	axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='red', fontsize=20, fontweight='bold', alpha=0.5)
+	    	axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=20, fontweight='bold', alpha=0.5)
 			
 	    	col += 1
 	    	k += 1
@@ -319,7 +319,7 @@ def process_volcano_plot(out_dir, volcano):
 			df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))
 			sns.scatterplot(x='log2FoldChange', y='-log_pvalue', data=df, hue='Type',legend=legend, ax = axes[i,j], palette=color_dict)
 			axes[i, j].axhline(pcutoff,color='black',ls='--')
-			axes[i, j].text(axes[i,j].get_xlim()[0], axes[i,j].get_ylim()[1]+offset[k], labels[k], c='red', fontsize=16, fontweight='bold', alpha=0.5)
+			axes[i, j].text(axes[i,j].get_xlim()[0], axes[i,j].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=16, fontweight='bold', alpha=0.5)
 			
 			df = df[df['Type']!='Not Significant']
 			df = df.sort_values('-log_pvalue', ascending=False)
