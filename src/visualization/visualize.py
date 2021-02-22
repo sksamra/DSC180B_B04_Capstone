@@ -491,8 +491,7 @@ def process_regulated_corr(out_dir, reg_corr):
 			cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
 			num_fts = reg_corr['num_fts']
 			fts_names = reg_corr['fts_names']
-			if reg == all_down:
-				if i=='Cerebrospinal':
+			if reg == all_down and i=='Cerebrospinal':
 					fig = plt.figure(figsize=(8, 6))
 					corr_df = get_corr_df(num_fts, fts_names, alz_tbl)
 					fig = sns.heatmap(corr_df)
@@ -500,7 +499,6 @@ def process_regulated_corr(out_dir, reg_corr):
 					fig.set_ylabel('Alzheimer\'s Disease')
 					plt.title('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[reg_ind],i))
 					plt.savefig(os.path.join(out_dir, '%s_corr_%s.png'%(reg_name[reg_ind],i)),bbox_inches='tight')
-
 			else: 
 				fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(8, 10))
 				ind = 0
