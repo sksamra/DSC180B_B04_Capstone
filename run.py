@@ -194,6 +194,9 @@ def main(targets):
         if 'test' in targets:
             histogram["ylim"] = 10
             venn["pvalue_cutoff"] = 0.5
+            box_all["enable"] = 0 
+            heatmap_all["enable"] = 0
+            reg_corr["enable"] = 0
             
           
         data = visualize.process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, heatmap_all, reg_corr, visualize_cfg["verbose"])

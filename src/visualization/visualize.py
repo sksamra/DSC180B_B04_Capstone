@@ -150,7 +150,6 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 	labels = ["(a)", "(b)", "(c)", "(d)"]
 	offset = [0.08, 0.08, 0.08, 0.08]
 	for biofluid_region in biofluid_regions:
-
 		col = 0
 		for disorder in disorders:
 			filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
@@ -166,27 +165,6 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 			if row == 1 and col == 0:
 				axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
 			col += 1
-		row += 1
-
-		col = 0
-		for disorder in disorders:
-			filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
-			if os.path.exists(filename):
-				im = mpimg.imread(filename)
-				axarr[row,col].imshow(im, interpolation='bilinear')
-			if row == 0 and col == 0:
-				axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
-			if row == 0 and col == 1:
-				axarr[row,col].set_title("Serum", size=20, color='blue')
-			if row == 0 and col == 0:
-				axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
-			if row == 1 and col == 0:
-				axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
-			axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=20, fontweight='bold', alpha=0.5)
-			
-			col += 1
-			k += 1
-
 		row += 1
 
 
