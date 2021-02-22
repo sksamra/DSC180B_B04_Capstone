@@ -45,6 +45,11 @@ def pvalue_histograms(ylim, biofluid_regions, disorders, title, out_image):
 
 	colors = ['red', 'blue', 'green']
 	col = 0
+
+	k = 0
+	labels = ["(a)", "(b)", "(c)", "(d)"]
+	offset = [0.08, 0.08, 0.08, 0.08]
+
 	for biofluid_region in biofluid_regions:
 		row = 0
 		for disorder in disorders:
@@ -53,8 +58,11 @@ def pvalue_histograms(ylim, biofluid_regions, disorders, title, out_image):
 				df = pd.read_csv(filename, sep='\t', index_col=0)
 				# remove high pvalues?
 				#df = df[df["pvalue"]<0.8]
-				df["pvalue"].plot.hist(ax = axes[row,col], color=colors[col], bins=20, ylim=(0,ylim)) 
+				df["pvalue"].plot.hist(ax = axes[row,col], color=colors[col], bins=20, ylim=(0,ylim))
+				axes[row,col].text(axes[row,col].get_xlim()[0], axes[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=16, fontweight='bold', alpha=0.5)
+
 			row+=1
+			k+= 1
 		col+=1
 		
 	for ax, row in zip(axes[:,0], disorders):
@@ -138,7 +146,11 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 	#plt.tight_layout()
 	fig.subplots_adjust(top=0.88)
 	row = 0
+	k = 0
+	labels = ["(a)", "(b)", "(c)", "(d)"]
+	offset = [0.08, 0.08, 0.08, 0.08]
 	for biofluid_region in biofluid_regions:
+
 		col = 0
 		for disorder in disorders:
 			filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
@@ -155,6 +167,28 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 				axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
 			col += 1
 		row += 1
+
+	    col = 0
+	    for disorder in disorders:
+	    	filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
+	    	if os.path.exists(filename):
+	    		im = mpimg.imread(filename)
+	    		axarr[row,col].imshow(im, interpolation='bilinear')
+	    	if row == 0 and col == 0:
+	    		axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
+	    	if row == 0 and col == 1:
+	    		axarr[row,col].set_title("Serum", size=20, color='blue')
+	    	if row == 0 and col == 0:
+	    		axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
+	    	if row == 1 and col == 0:
+	    		axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
+	    	axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=20, fontweight='bold', alpha=0.5)
+			
+	    	col += 1
+	    	k += 1
+
+	    row += 1
+
 
 	plt.savefig(out_image)
 	return
@@ -289,6 +323,9 @@ def process_volcano_plot(out_dir, volcano):
 		ax.set_title(col, color='purple')
 	color_dict = dict({'Down':'blue', 'Up':'red', 'Not Significant': 'gray'})
 
+	k = 0
+	labels = ["(a)", "(b)", "(c)", "(d)"]
+	offset = [0.02, 0.05, 0.05, 0.05]
 	for i in range(2):
 		for j in range(2):
 			disorder = disorders[i]
@@ -301,11 +338,13 @@ def process_volcano_plot(out_dir, volcano):
 			df["Type"] = np.where(df["-log_pvalue"] < pcutoff, "Not Significant", np.where(df["log2FoldChange"]<0, "Down", "Up"))
 			sns.scatterplot(x='log2FoldChange', y='-log_pvalue', data=df, hue='Type',legend=legend, ax = axes[i,j], palette=color_dict)
 			axes[i, j].axhline(pcutoff,color='black',ls='--')
+			axes[i, j].text(axes[i,j].get_xlim()[0], axes[i,j].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=16, fontweight='bold', alpha=0.5)
 			
 			df = df[df['Type']!='Not Significant']
 			df = df.sort_values('-log_pvalue', ascending=False)
 			df = df[['Type', 'log2FoldChange', '-log_pvalue']]
 			df.to_csv(out_dir + "/" + biofluid + "/" + disorder + "/updown_miRNAs.csv")
+			k += 1
 
 
 	for ax, row in zip(axes[:,0], disorders):
