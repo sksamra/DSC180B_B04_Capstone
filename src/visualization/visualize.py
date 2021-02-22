@@ -513,21 +513,23 @@ def process_regulated_corr(out_dir, reg_corr):
 			cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
 			num_fts = reg_corr['num_fts']
 			fts_names = reg_corr['fts_names']
-			if i=='Cerebrospinal' and reg == all_down:
-				corr_df = get_corr_df(num_fts, fts_names, alz_tbl)
-				fig = sns.heatmap(corr_df)
-				fig.set_xticklabels(fts_names)
-				fig.set_ylabel('Alzheimer\'s Disease')
-				plt.title('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[reg_ind],i))
-				plt.savefig(os.path.join(out_dir, '%s_corr_%s.png'%(reg_name[reg_ind],i)))
+			if reg == all_down:
+				if i=='Cerebrospinal':
+					fig = plt.figure(figsize=(8, 6))
+					corr_df = get_corr_df(num_fts, fts_names, alz_tbl)
+					fig = sns.heatmap(corr_df)
+					fig.set_xticklabels(fts_names)
+					fig.set_ylabel('Alzheimer\'s Disease')
+					plt.title('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[reg_ind],i))
+					plt.savefig(os.path.join(out_dir, '%s_corr_%s.png'%(reg_name[reg_ind],i)),bbox_inches='tight')
 
 			else: 
-				fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
+				fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(8, 10))
 				ind = 0
 				for tbl in tbl_arr:
 					corr_df = get_corr_df(num_fts, fts_names, tbl)
 					sns.heatmap(corr_df, ax = axes.flatten()[ind])
-					axes.flatten()[ind].set_xticklabels(fts_names)#, rotation=30)
+					axes.flatten()[ind].set_xticklabels(fts_names)
 					ind = ind+1
 				for ax, col in zip(axes, cols):
 					ax.set_ylabel(col, rotation=90, size='large')
