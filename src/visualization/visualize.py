@@ -168,26 +168,26 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 			col += 1
 		row += 1
 
-	    col = 0
-	    for disorder in disorders:
-	    	filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
-	    	if os.path.exists(filename):
-	    		im = mpimg.imread(filename)
-	    		axarr[row,col].imshow(im, interpolation='bilinear')
-	    	if row == 0 and col == 0:
-	    		axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
-	    	if row == 0 and col == 1:
-	    		axarr[row,col].set_title("Serum", size=20, color='blue')
-	    	if row == 0 and col == 0:
-	    		axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
-	    	if row == 1 and col == 0:
-	    		axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
-	    	axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=20, fontweight='bold', alpha=0.5)
+		col = 0
+		for disorder in disorders:
+			filename = "data/out/"+biofluid_region+"/"+disorder+"/" + image_filename
+			if os.path.exists(filename):
+				im = mpimg.imread(filename)
+				axarr[row,col].imshow(im, interpolation='bilinear')
+			if row == 0 and col == 0:
+				axarr[row,col].set_title("Cerebrospinal", size=20, color='red')
+			if row == 0 and col == 1:
+				axarr[row,col].set_title("Serum", size=20, color='blue')
+			if row == 0 and col == 0:
+				axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
+			if row == 1 and col == 0:
+				axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
+			axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=20, fontweight='bold', alpha=0.5)
 			
-	    	col += 1
-	    	k += 1
+			col += 1
+			k += 1
 
-	    row += 1
+		row += 1
 
 
 	plt.savefig(out_image)
@@ -446,9 +446,11 @@ def process_all_heatmap(plot_path, heatmap_all):
 	cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
 	fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(24, 240))
 	ind = 0
+	num_fts = heatmap_all['num_fts']
+	fts_names = heatmap_all['fts_names']
 	for tbl in tbl_arr:
 		corr_df = get_corr_df(num_fts, fts_names, tbl)
-		sn.heatmap(corr_df, ax = axes.flatten()[ind])
+		sns.heatmap(corr_df, ax = axes.flatten()[ind])
 		axes.flatten()[ind].set_xticklabels(fts_names, rotation=45)
 		ind = ind+1
 
@@ -466,11 +468,9 @@ def get_up_down_martix(up_down_path, gm):
 	down_reg = merged_reg[merged_reg['Type']=='Down'].iloc[:,3:].T
 	return up_reg, down_reg
 
-def get_seq_overlap():
+def get_seq_overlap(gm, up_down_path):
 	biofluid = ['Cerebrospinal', 'Serum']
 	condition = ['Alzheimer', 'Parkinson']
-	up_down_path = '../data/out/%s/%s/updown_miRNAs.csv'
-
 	up_overlap = {}
 	down_overlap = {}
 	all_up = {}
@@ -484,48 +484,57 @@ def get_seq_overlap():
 			up_reg, down_reg = get_up_down_martix(correct_path, gm)
 			up_seq[j] = set(up_reg.columns)
 			down_seq[j] = set(down_reg.columns)
-		up_overlap[i] = set.intersection(up_seq[condition[0]], up_seq[condition[1]])
-		down_overlap[i] = set.intersection(down_seq[condition[0]], down_seq[condition[1]])
+		up_overlap[i] = list(set.intersection(up_seq[condition[0]], up_seq[condition[1]]))
+		down_overlap[i] = list(set.intersection(down_seq[condition[0]], down_seq[condition[1]]))
 		all_up[i] = up_seq
 		all_down[i] = down_seq
 	return all_up, all_down, up_overlap, down_overlap
 
 def process_regulated_corr(out_dir, reg_corr):
 	gm = pd.read_csv(reg_corr['gm_path'], sep='\t', index_col=0)
+	gm_reind = gm.T
 	sra = pd.read_csv(reg_corr['sra_path'])
+	up_down_path = reg_corr['up_down_path']
 	_, _, alz_ft, park_ft = get_cond_tbl(gm, sra, reg_corr['selected_ft'])
-	all_up, all_down, up_overlap, down_overlap = get_seq_overlap()
+	all_up, all_down, up_overlap, down_overlap = get_seq_overlap(gm, up_down_path)
 	reg_li = [all_up, all_down, up_overlap]
 	reg_name = ['up-regulated', 'down-regulated', 'overlapping']
-	ind = -1
-	for reg in reg_li:
-		ind = ind +1
+	biofluid = ['Cerebrospinal', 'Serum']
+	for reg_ind in range(len(reg_li)):
+		reg = reg_li[reg_ind]
 		for i in biofluid:
-			alz_tbl = alz_ft.merge(gm_reind[reg[i]['Alzheimer']], left_index=True, right_index=True, how='inner')
-			park_tbl = park_ft.merge(gm_reind[reg[i]['Parkinson']], left_index=True, right_index=True, how='inner')
-			fts_names = selected_ft.drop('CONDITION', axis=1).columns
+			if reg_ind == 2:
+				alz_tbl = alz_ft.merge(gm_reind[reg[i]], left_index=True, right_index=True, how='inner')
+				park_tbl = park_ft.merge(gm_reind[reg[i]], left_index=True, right_index=True, how='inner')
+			else:
+				alz_tbl = alz_ft.merge(gm_reind[reg[i]['Alzheimer']], left_index=True, right_index=True, how='inner')
+				park_tbl = park_ft.merge(gm_reind[reg[i]['Parkinson']], left_index=True, right_index=True, how='inner')
 			tbl_arr = [alz_tbl, park_tbl]
 			cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
+			num_fts = reg_corr['num_fts']
+			fts_names = reg_corr['fts_names']
 			if i=='Cerebrospinal' and reg == all_down:
 				corr_df = get_corr_df(num_fts, fts_names, alz_tbl)
-				fig = sn.heatmap(corr_df)
+				fig = sns.heatmap(corr_df)
 				fig.set_xticklabels(fts_names)
 				fig.set_ylabel('Alzheimer\'s Disease')
-				plt.title('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[ind],i))
+				plt.title('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[reg_ind],i))
+				plt.savefig(os.path.join(out_dir, '%s_corr_%s.png'%(reg_name[reg_ind],i)))
+
 			else: 
 				fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 				ind = 0
 				for tbl in tbl_arr:
 					corr_df = get_corr_df(num_fts, fts_names, tbl)
-					sn.heatmap(corr_df, ax = axes.flatten()[ind])
+					sns.heatmap(corr_df, ax = axes.flatten()[ind])
 					axes.flatten()[ind].set_xticklabels(fts_names)#, rotation=30)
 					ind = ind+1
 				for ax, col in zip(axes, cols):
 					ax.set_ylabel(col, rotation=90, size='large')
 				fig.tight_layout()
 				fig.subplots_adjust(top=0.9)
-				fig.suptitle('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[ind],i))
-			fig.savefig(os.path.join(plot_path, '%s_corr_%s.png'%(reg_name[ind],i)))
+				fig.suptitle('Correlation between the %s sequence and basic numerical features in %s'%(reg_name[reg_ind],i))
+				fig.savefig(os.path.join(out_dir, '%s_corr_%s.png'%(reg_name[reg_ind],i)))
 
 
 					  
