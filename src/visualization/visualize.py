@@ -387,56 +387,6 @@ def get_cond_tbl(gm, sra, selected_ft):
 	park_tbl = park_ft.merge(gm_reind, left_index=True, right_index=True, how='inner')
 	return alz_tbl, park_tbl, alz_ft, park_ft
 
-def process_all_box(plot_path, box_all):
-	gm = pd.read_csv(box_all['gm_path'], sep='\t', index_col=0)
-	sra = pd.read_csv(box_all['sra_path'])
-	alz_tbl, park_tbl, _, _ = get_cond_tbl(gm, sra, box_all['selected_ft'])
-	
-	num_fts = box_all['num_fts']
-	alz_gm = alz_tbl.iloc[:, num_fts:]
-	park_gm = park_tbl.iloc[:, num_fts:]
-	fig, axes= plt.subplots(nrows=2, ncols=1, figsize=(240, 16))
-	alz_gm.boxplot(ax = axes.flatten()[0])
-	axes.flatten()[0].set_xticklabels(alz_gm.columns, rotation=45)
-	park_gm.boxplot(ax = axes.flatten()[1])
-	axes.flatten()[1].set_xticklabels(park_gm.columns, rotation=45)
-	rows = ['Alzheimer\'s Disease','Parkinson\'s Disease']
-	for ax, row in zip(axes, rows):
-		ax.set_ylabel(row, rotation=90, size='large')
-	fig.tight_layout()
-	fig.suptitle('Distribution of each sequence in AD and PD patients ')
-	fig.subplots_adjust(top=0.9)
-	fig.savefig(os.path.join(plot_path, box_all['out_name']))
-	
-def get_corr_df(num_fts, fts_names, tbl):
-	corr_df = pd.DataFrame()
-	for i in range(num_fts):
-		corr = tbl[tbl.columns[num_fts:]].apply(lambda x: x.corr(tbl.iloc[:,i]))
-		corr_df[fts_names[i]] = corr
-	return corr_df
-
-def process_all_heatmap(plot_path, heatmap_all):
-	gm = pd.read_csv(heatmap_all['gm_path'], sep='\t', index_col=0)
-	sra = pd.read_csv(heatmap_all['sra_path'])
-	alz_tbl, park_tbl, _, _ = get_cond_tbl(gm, sra, heatmap_all['selected_ft'])
-	
-	tbl_arr = [alz_tbl, park_tbl]
-	cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
-	fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(24, 240))
-	ind = 0
-	num_fts = heatmap_all['num_fts']
-	fts_names = heatmap_all['fts_names']
-	for tbl in tbl_arr:
-		corr_df = get_corr_df(num_fts, fts_names, tbl)
-		sns.heatmap(corr_df, ax = axes.flatten()[ind])
-		axes.flatten()[ind].set_xticklabels(fts_names, rotation=45)
-		ind = ind+1
-
-	for ax, col in zip(axes, cols):
-		ax.set_ylabel(col, rotation=90, size='large')
-	fig.tight_layout()
-
-	fig.savefig(os.path.join(plot_path, heatmap_all['out_name']))
 
 def get_up_down_martix(up_down_path, gm):
 	reg_seq = pd.read_csv(up_down_path)
@@ -467,6 +417,31 @@ def get_seq_overlap(gm, up_down_path):
 		all_up[i] = up_seq
 		all_down[i] = down_seq
 	return all_up, all_down, up_overlap, down_overlap
+
+def process_all_box(plot_path, box_all):
+	gm = pd.read_csv(box_all['gm_path'], sep='\t', index_col=0)
+	sra = pd.read_csv(box_all['sra_path'])
+	up_down_path = box_all['up_down_path']
+	alz_tbl, park_tbl, _, _ = get_cond_tbl(gm, sra, box_all['selected_ft'])
+	_, _, reg, _ = get_seq_overlap(gm, up_down_path)
+	biofluid = ['Cerebrospinal', 'Serum']
+	for i in biofluid:
+		alz_gm = alz_tbl[list(reg[i])]
+		park_gm = park_tbl[list(reg[i])]
+		gm_arr = [alz_gm, park_gm]
+		cols = ['Alzheimer\'s Disease','Parkinson\'s Disease']
+		fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
+		ind = 0
+		for cond_gm in gm_arr:
+			cond_gm.boxplot(ax = axes.flatten()[ind])
+			ind = ind+1
+		for ax, col in zip(axes, cols):
+			ax.set_ylabel(col, rotation=90, size='large')
+			ax.set_xticklabels(cond_gm.columns, rotation=90)
+		fig.tight_layout()
+		fig.subplots_adjust(top=0.9)
+		fig.suptitle('Distribution of the overlapping sequence in %s'%i)
+		fig.savefig(os.path.join(plot_path, 'overlapping_distr_%s.png'%i))
 
 def process_regulated_corr(out_dir, reg_corr):
 	gm = pd.read_csv(reg_corr['gm_path'], sep='\t', index_col=0)
@@ -517,7 +492,7 @@ def process_regulated_corr(out_dir, reg_corr):
 
 					  
 
-def process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, heatmap_all, reg_corr, verbose):
+def process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, reg_corr, verbose):
 		
 	if verbose:
 		logging.info("# ---------------------------------------------------")
@@ -553,9 +528,6 @@ def process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, 
 		
 	if box_all["enable"] == 1:
 		process_all_box(plot_path, box_all)
-	
-	if heatmap_all["enable"] == 1:
-		process_all_heatmap(plot_path, heatmap_all)
 	
 	if reg_corr["enable"] == 1:
 		process_regulated_corr(out_dir, reg_corr)

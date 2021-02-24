@@ -60,25 +60,13 @@
     },
     
     "box_all" : {
-        "enable" : 0,
+        "enable" : 1,
         "gm_path" : "data/out/gene_matrix.tsv",
         "sra_path" : "data/raw/exRNA_Atlas_CORE_Results.csv",
-        "selected_ft" : ["Run","CONDITION","expired_age", "PMI", "PlaqueTotal", "TangleTotal","Braak score", "sn_depigmentation"],
-        "fts_names" : ["expired_age", "PMI", "PlaqueTotal", "TangleTotal","Braak score", "sn_depigmentation"],
-        "num_fts" : 6,
-        "out_name" : "miRNA_distr.png"
+        "up_down_path" : "data/out/%s/%s/updown_miRNAs.csv",
+        "selected_ft" : ["Run","CONDITION","expired_age", "PMI", "PlaqueTotal", "TangleTotal","Braak score", "sn_depigmentation"]
     },
-    
-    "heatmap_all" : {
-        "enable" : 0,
-        "gm_path" : "data/out/gene_matrix.tsv",
-        "sra_path" : "data/raw/exRNA_Atlas_CORE_Results.csv",
-        "num_fts" : 6,
-        "selected_ft" : ["Run","CONDITION","expired_age", "PMI", "PlaqueTotal", "TangleTotal","Braak score", "sn_depigmentation"],
-        "fts_names" : ["expired_age", "PMI", "PlaqueTotal", "TangleTotal","Braak score", "sn_depigmentation"],
-        "out_name" : "miRNA_corr.png"
-    },
-    
+
     "reg_corr" :{
         "enable" : 1,
         "gm_path" : "data/out/gene_matrix.tsv",

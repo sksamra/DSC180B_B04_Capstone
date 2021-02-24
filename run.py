@@ -187,7 +187,6 @@ def main(targets):
         venn = visualize_cfg["venn"]
         volcano = visualize_cfg["volcano"]
         box_all = visualize_cfg["box_all"]
-        heatmap_all = visualize_cfg["heatmap_all"]
         reg_corr = visualize_cfg["reg_corr"]
 
         # Limit visualization for test
@@ -195,11 +194,10 @@ def main(targets):
             histogram["ylim"] = 10
             venn["pvalue_cutoff"] = 0.5
             box_all["enable"] = 0 
-            heatmap_all["enable"] = 0
             reg_corr["enable"] = 0
             
           
-        data = visualize.process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, heatmap_all, reg_corr, visualize_cfg["verbose"])
+        data = visualize.process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, heat_map, histogram, corrmatrix, venn, volcano, box_all, reg_corr, visualize_cfg["verbose"])
         success = True
 
 
