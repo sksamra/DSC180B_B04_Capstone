@@ -529,7 +529,7 @@ def process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, 
 	if box_all["enable"] == 1:
 		process_all_box(plot_path, box_all)
 	
-	if reg_corr["enable"] == 1:
+	if reg_corr["enable"] == 0:
 		process_regulated_corr(out_dir, reg_corr)
 
 	if verbose:
