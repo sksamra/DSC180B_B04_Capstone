@@ -164,6 +164,9 @@ def visualize_grid_images(biofluid_regions, disorders, image_filename, title, ou
 				axarr[row,col].set_ylabel("Parkinson", size=20, color='purple')
 			if row == 1 and col == 0:
 				axarr[row,col].set_ylabel("Alzheimer", size=20, color='purple')
+
+			axarr[row,col].text(axarr[row,col].get_xlim()[0], axarr[row,col].get_ylim()[1]+offset[k], labels[k], c='purple', fontsize=16, fontweight='bold', alpha=0.5)
+			k += 1
 			col += 1
 		row += 1
 
