@@ -421,7 +421,16 @@ def get_seq_overlap(gm, up_down_path):
 		all_down[i] = down_seq
 	return all_up, all_down, up_overlap, down_overlap
 
+def get_corr_df(num_fts, fts_names, tbl):
+	corr_df = pd.DataFrame()
+	for i in range(num_fts):
+		corr = tbl[tbl.columns[num_fts:]].apply(lambda x: x.corr(tbl.iloc[:,i]))
+		corr_df[fts_names[i]] = corr
+	return corr_df
+
 def process_all_box(plot_path, box_all):
+	if not os.path.exists(plot_path):
+		os.makedirs(plot_path)
 	gm = pd.read_csv(box_all['gm_path'], sep='\t', index_col=0)
 	sra = pd.read_csv(box_all['sra_path'])
 	up_down_path = box_all['up_down_path']
@@ -532,7 +541,7 @@ def process_plots(out_dir, plot_path, gene_hist, missing_plot, sra_lm, ma_plot, 
 	if box_all["enable"] == 1:
 		process_all_box(plot_path, box_all)
 	
-	if reg_corr["enable"] == 0:
+	if reg_corr["enable"] == 1:
 		process_regulated_corr(out_dir, reg_corr)
 
 	if verbose:
