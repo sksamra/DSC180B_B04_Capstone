@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Title: Data Science DSC180A, Replication Project
+# Title: Data Science DSC180A (Replication Project), DSC180B (miRNA Overlap Alzheimer's and Parkinson's)
 # Section B04: Genetics
-# Authors: Saroop Samra, Justin Kang
+# Authors: Saroop Samra (180A/180B), Justin Kang (180A), Justin Lu (180B), Xuanyu Wu (180B)
 # Date : 10/23/2020
 
 import sys
