@@ -37,7 +37,7 @@
         "biofluid_regions" : ["Cerebrospinal", "Serum"],
         "disorders" : ["Parkinson", "Alzheimer"],
         "title" : "Histograms Differential Gene Expression vs Control",
-        "ylim" : 55
+        "ylim" : 240
     },
     "corrmatrix" : {
         "enable" : 1,
